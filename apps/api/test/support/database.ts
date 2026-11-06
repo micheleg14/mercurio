@@ -96,6 +96,9 @@ export async function deleteTenantsAndUsers(
   await admin.membershipCompany.deleteMany({ where: { membership: { userId } } });
   await admin.membership.deleteMany({ where: { userId } });
   await admin.activationToken.deleteMany({ where: { userId } });
+  await admin.platformOperator.deleteMany({
+    where: { OR: [{ userId }, { grantedBy: userId }, { revokedBy: userId }] },
+  });
   await admin.user.deleteMany({ where: { id: userId } });
 }
 

@@ -32,7 +32,7 @@ export class AuditEventDto {
   @ApiProperty() id!: string;
   @ApiProperty({ example: '2026-10-20T15:00:00.000Z' }) at!: string;
   @ApiProperty({ example: 'MEMBER_ADDED' }) type!: string;
-  @ApiProperty({ enum: ['API', 'CLI'] }) source!: 'API' | 'CLI';
+  @ApiProperty({ enum: ['API', 'CLI', 'PLATFORM'] }) source!: 'API' | 'CLI' | 'PLATFORM';
   @ApiProperty({
     type: AuditActorDto,
     nullable: true,

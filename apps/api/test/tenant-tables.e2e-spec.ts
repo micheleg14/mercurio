@@ -71,6 +71,7 @@ describe('tenant tables (guard)', () => {
       'activation_tokens',
       'auth_events',
       'credentials',
+      'platform_operators',
       'recovery_codes',
       'sessions',
       'tenants',
