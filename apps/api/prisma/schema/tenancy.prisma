@@ -3,13 +3,18 @@
 
 /// A customer of the platform: whoever holds the subscription. Never deleted (B10).
 model Tenant {
-  id        String       @id @default(uuid(7)) @db.Uuid
-  name      String
+  id              String       @id @default(uuid(7)) @db.Uuid
+  name            String
   /// Lowercase identifier used by terminal commands, e.g. `rossi`.
-  slug      String       @unique
-  status    TenantStatus @default(ACTIVE)
-  createdAt DateTime     @default(now()) @map("created_at") @db.Timestamptz(6)
-  updatedAt DateTime     @updatedAt @map("updated_at") @db.Timestamptz(6)
+  slug            String       @unique
+  status          TenantStatus @default(ACTIVE)
+  /// Why the platform operator last suspended or reactivated the tenant, and when (phase 8a).
+  statusReason    String?      @map("status_reason")
+  statusChangedAt DateTime?    @map("status_changed_at") @db.Timestamptz(6)
+  /// Optimistic concurrency (B29) for what the platform operator changes: name, status, modules.
+  version         Int          @default(1)
+  createdAt       DateTime     @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt       DateTime     @updatedAt @map("updated_at") @db.Timestamptz(6)
 
   companies   Company[]
   modules     TenantModule[]

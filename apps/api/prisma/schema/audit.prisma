@@ -4,6 +4,8 @@
 enum AuditSource {
   API
   CLI
+  /// The platform operator, from the browser (phase 8a).
+  PLATFORM
 
   @@map("audit_source")
 }

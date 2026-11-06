@@ -18,12 +18,15 @@ model User {
   sessions         Session[]
   authEvents       AuthEvent[]
   auditEvents      AuditEvent[]
+  operatorGrants   PlatformOperator[] @relation("OperatorUser")
+  operatorsGranted PlatformOperator[] @relation("OperatorGrantedBy")
+  operatorsRevoked PlatformOperator[] @relation("OperatorRevokedBy")
   stockDocuments   StockDocument[]
   orders           Order[]
   orderFulfilments OrderFulfilment[]
-  invoiceDrafts    InvoiceDraft[]    @relation("InvoiceDraftCreator")
-  invoicesIssued   Invoice[]         @relation("InvoiceIssuer")
-  payments         Payment[]         @relation("PaymentCreator")
+  invoiceDrafts    InvoiceDraft[]     @relation("InvoiceDraftCreator")
+  invoicesIssued   Invoice[]          @relation("InvoiceIssuer")
+  payments         Payment[]          @relation("PaymentCreator")
 
   @@map("users")
 }

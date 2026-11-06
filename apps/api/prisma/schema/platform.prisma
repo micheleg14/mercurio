@@ -1,0 +1,23 @@
+// Module `platform`: the people who configure the platform from the browser, outside any tenant
+// (docs/adr/0038). A platform table: no tenant_id, protected by Row-Level Security on user_id.
+
+/// A person allowed to create and govern tenants. Revoking closes the row instead of deleting it,
+/// and granting again adds a new one: the history stays. At most one open grant per person
+/// (partial unique index in the migration).
+model PlatformOperator {
+  id           String    @id @default(uuid(7)) @db.Uuid
+  userId       String    @map("user_id") @db.Uuid
+  grantedAt    DateTime  @default(now()) @map("granted_at") @db.Timestamptz(6)
+  /// Empty when granted from the terminal.
+  grantedBy    String?   @map("granted_by") @db.Uuid
+  revokedAt    DateTime? @map("revoked_at") @db.Timestamptz(6)
+  revokedBy    String?   @map("revoked_by") @db.Uuid
+  revokeReason String?   @map("revoke_reason")
+
+  user          User  @relation("OperatorUser", fields: [userId], references: [id])
+  grantedByUser User? @relation("OperatorGrantedBy", fields: [grantedBy], references: [id])
+  revokedByUser User? @relation("OperatorRevokedBy", fields: [revokedBy], references: [id])
+
+  @@index([userId])
+  @@map("platform_operators")
+}
