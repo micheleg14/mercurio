@@ -2,7 +2,8 @@ import type { NestExpressApplication } from '@nestjs/platform-express';
 import request from 'supertest';
 import type { PrismaClient } from '../src/generated/prisma/client.js';
 import { italianCheckDigit } from '../src/shared/italian-identifiers.js';
-import { activate, activateWithCode, bearer, createTestApp } from './support/auth.js';
+import { totpCode } from '../src/modules/auth/index.js';
+import { activate, activateWithCode, bearer, createTestApp, PASSWORD } from './support/auth.js';
 import {
   adminClient,
   createWorld,
@@ -156,13 +157,18 @@ describe('tenants from the platform area (e2e)', () => {
     let adminToken: string;
     let version: number;
     let company: string;
+    let adminEmail: string;
+    let adminSecret: string;
 
     beforeAll(async () => {
       const res = await createTenant();
       id = res.body.tenant.id;
       company = res.body.tenant.companies[0].id;
       version = res.body.tenant.version;
-      adminToken = (await activateWithCode(app, res.body.activation.code)).accessToken;
+      adminEmail = res.body.tenant.admins[0].email;
+      const activated = await activateWithCode(app, res.body.activation.code);
+      adminToken = activated.accessToken;
+      adminSecret = activated.secret;
     });
 
     it('turns modules on and off for the people of the tenant at once', async () => {
@@ -216,6 +222,19 @@ describe('tenants from the platform area (e2e)', () => {
         statusReason: 'Contratto scaduto',
       });
       expect((await as(adminToken).get('/parties')).body.code).toBe('TENANT_SUSPENDED');
+      // Signing in again: the only tenant is suspended, and the answer says so.
+      const relogin = await http()
+        .post('/api/auth/login')
+        .send({ email: adminEmail, password: PASSWORD })
+        .expect(200);
+      await admin.credential.updateMany({
+        where: { user: { email: adminEmail } },
+        data: { totpLastStep: null },
+      });
+      const mfa = await http()
+        .post('/api/auth/mfa/verify')
+        .send({ challengeToken: relogin.body.token, code: totpCode(adminSecret) });
+      expect([mfa.status, mfa.body.code]).toEqual([403, 'TENANT_SUSPENDED']);
 
       const again = await as(operator).post(`/platform/tenants/${id}/suspend`, {
         version,

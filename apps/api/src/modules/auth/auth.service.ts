@@ -274,7 +274,13 @@ export class AuthService {
     const prepared = await this.userDb.runAs(userId, async (tx) => {
       const tenants = await this.usableTenants(tx, userId);
       // Nobody signs in to nothing, except a platform operator: their area needs no tenant.
-      if (tenants.length === 0 && !(await this.identity.isPlatformOperator(tx))) return null;
+      if (tenants.length === 0 && !(await this.identity.isPlatformOperator(tx))) {
+        // Someone whose tenants are all suspended is told so, not that they belong nowhere.
+        if ((await this.suspendedTenants(tx, userId)).length > 0) {
+          throw new DomainException('TENANT_SUSPENDED', HttpStatus.FORBIDDEN);
+        }
+        return null;
+      }
       const only = tenants.length === 1 ? tenants[0]! : undefined;
       const session = await this.repository.createSession(tx, {
         userId,
@@ -464,6 +470,7 @@ export class AuthService {
       const modules = ctx.tenantId ? await this.tenancy.enabledModules(tx, ctx.tenantId) : [];
       const companies = ctx.tenantId ? await this.tenancy.listCompanies(tx, ctx.tenantId) : [];
       const platformOperator = await this.identity.isPlatformOperator(tx);
+      const suspendedTenants = await this.suspendedTenants(tx, ctx.userId);
       return {
         user: { id: ctx.userId, email: user?.email ?? '', name: user?.name ?? '' },
         tenant: tenant ? { id: tenant.id, name: tenant.name, slug: tenant.slug } : null,
@@ -475,6 +482,7 @@ export class AuthService {
           .map((c) => ({ id: c.id, legalName: c.legalName, vatNumber: c.vatNumber })),
         tenants,
         platformOperator,
+        suspendedTenants,
       };
     });
   }
@@ -665,6 +673,17 @@ export class AuthService {
         details,
       });
     }
+  }
+
+  /** Active memberships in tenants the platform operator suspended: name only. */
+  private async suspendedTenants(tx: DbClient, userId: string) {
+    const memberships = await this.identity.listActiveMemberships(tx, userId);
+    if (memberships.length === 0) return [];
+    const tenants = await this.tenancy.tenantsByIds(
+      tx,
+      memberships.map((m) => m.tenantId),
+    );
+    return tenants.filter((t) => t.status !== 'ACTIVE').map((t) => ({ id: t.id, name: t.name }));
   }
 
   /** Active memberships whose tenant is active too, with the tenant's name and the role. */

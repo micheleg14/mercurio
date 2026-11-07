@@ -59,7 +59,12 @@ describe('platform area (e2e)', () => {
     const operator = await get(token.operator, '/auth/me').expect(200);
     const member = await get(token.uInA, '/auth/me').expect(200);
 
-    expect(operator.body).toMatchObject({ platformOperator: true, tenant: null, tenants: [] });
+    expect(operator.body).toMatchObject({
+      platformOperator: true,
+      tenant: null,
+      tenants: [],
+      suspendedTenants: [],
+    });
     expect(member.body.platformOperator).toBe(false);
   });
 

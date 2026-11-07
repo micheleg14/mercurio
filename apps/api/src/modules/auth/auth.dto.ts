@@ -99,6 +99,12 @@ export class TenantChoiceDto {
   @ApiProperty({ type: RoleRefDto }) role!: RoleRefDto;
 }
 
+/** A tenant the person belongs to that the platform operator has suspended: shown, not chosen. */
+export class SuspendedTenantDto {
+  @ApiProperty() id!: string;
+  @ApiProperty() name!: string;
+}
+
 export class ActivateResponseDto {
   @ApiProperty() enrollToken!: string;
 }
@@ -179,4 +185,10 @@ export class MeDto {
       'Whether the person may open the platform area. Only to show it: the server checks every platform route itself',
   })
   platformOperator!: boolean;
+  @ApiProperty({
+    type: [SuspendedTenantDto],
+    description:
+      'Tenants of the person that are suspended: they cannot be chosen until reactivated',
+  })
+  suspendedTenants!: SuspendedTenantDto[];
 }
