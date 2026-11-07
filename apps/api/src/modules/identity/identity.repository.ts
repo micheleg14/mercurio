@@ -339,6 +339,30 @@ export class IdentityRepository {
 
   // --- Platform operators -------------------------------------------------------------------
 
+  /** The open grant of a person, if any. Owner role (terminal commands). */
+  findOpenOperatorGrant(db: DbClient, userId: string) {
+    return db.platformOperator.findFirst({ where: { userId, revokedAt: null } });
+  }
+
+  createOperatorGrant(db: DbClient, data: { userId: string; grantedBy?: string }) {
+    return db.platformOperator.create({ data: { userId: data.userId, grantedBy: data.grantedBy } });
+  }
+
+  revokeOperatorGrant(db: DbClient, id: string, data: { revokedBy?: string; reason: string }) {
+    return db.platformOperator.update({
+      where: { id },
+      data: { revokedAt: new Date(), revokedBy: data.revokedBy, revokeReason: data.reason },
+    });
+  }
+
+  /** Every grant, open and revoked, with the person: for the terminal. */
+  listOperatorGrants(db: DbClient) {
+    return db.platformOperator.findMany({
+      orderBy: [{ grantedAt: 'asc' }, { id: 'asc' }],
+      include: { user: { select: { email: true, name: true } } },
+    });
+  }
+
   /** Whether the person in the context (app.user_id) holds an open operator grant. */
   async isPlatformOperator(db: DbClient): Promise<boolean> {
     const [row] = await db.$queryRaw<{ active: boolean }[]>`

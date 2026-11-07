@@ -47,6 +47,8 @@
       "LOGGED_OUT": "Signed out",
       "LOGGED_OUT_ALL": "Signed out of every device",
       "ACCOUNT_RECOVERY_ISSUED": "Account recovery started by the operator",
+      "OPERATOR_GRANTED": "Platform operator role granted",
+      "OPERATOR_REVOKED": "Platform operator role revoked",
       "SESSIONS_REVOKED": "Sessions closed by the operator"
     }
   }

@@ -188,4 +188,55 @@ describe('terminal commands (e2e)', () => {
     });
     expect(tokens.map((t) => t.tokenHash)).toEqual([hashActivationCode(printedCode(issued.out)!)]);
   });
+  // The first platform operator is born here, at installation (docs/adr/0038).
+  it('grants, lists and revokes platform operators', async () => {
+    const unknown = await cli('grant-operator', '--email', email('nobody'));
+    expect(unknown.code).not.toBe(0);
+    expect(unknown.err).toContain('--name');
+
+    const granted = await cli('grant-operator', '--email', email('opera'), '--name', 'Opera Tore');
+    expect(granted.code).toBe(0);
+    const code = printedCode(granted.out);
+    const user = await admin.user.findUniqueOrThrow({ where: { email: email('opera') } });
+    expect(
+      await admin.activationToken.count({ where: { tokenHash: hashActivationCode(code!) } }),
+    ).toBe(1);
+    expect(granted.audit).toEqual([{ command: 'grant-operator', email: email('opera') }]);
+
+    const twice = await cli('grant-operator', '--email', email('opera'));
+    expect(twice.code).not.toBe(0);
+    expect(twice.err).toContain('ALREADY_PLATFORM_OPERATOR');
+
+    expect((await cli('list-operators')).out).toMatch(
+      new RegExp(`${email('opera').replace(/\./g, '\\.')}  Opera Tore  granted \\S+  active`),
+    );
+
+    const revoked = await cli(
+      'revoke-operator',
+      '--email',
+      email('opera'),
+      '--reason',
+      'Ha cambiato ruolo',
+    );
+    expect(revoked.code).toBe(0);
+    expect(revoked.out).toContain('revoke-sessions');
+    expect((await cli('list-operators')).out).toContain('(Ha cambiato ruolo)');
+    expect(
+      (await cli('revoke-operator', '--email', email('opera'), '--reason', 'x')).err,
+    ).toContain('NOT_PLATFORM_OPERATOR');
+
+    // Granted again later: a new row, the old one stays as history.
+    expect((await cli('grant-operator', '--email', email('opera'))).code).toBe(0);
+    const grants = await admin.platformOperator.findMany({ where: { userId: user.id } });
+    expect(grants.map((g) => g.revokedAt === null).sort()).toEqual([false, true]);
+    const events = await admin.authEvent.findMany({
+      where: { userId: user.id },
+      orderBy: { at: 'asc' },
+    });
+    expect(events.map((e) => e.type)).toEqual([
+      'OPERATOR_GRANTED',
+      'OPERATOR_REVOKED',
+      'OPERATOR_GRANTED',
+    ]);
+  });
 });
