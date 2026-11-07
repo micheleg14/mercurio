@@ -1066,6 +1066,36 @@
         ]
       }
     },
+    "/platform/modules": {
+      "get": {
+        "operationId": "PlatformController_modules",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/PlatformModuleDto"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "The modules a tenant can have, with their dependencies",
+        "tags": [
+          "platform"
+        ]
+      }
+    },
     "/parties": {
       "get": {
         "operationId": "PartiesController_list",
@@ -5646,7 +5676,8 @@
             "type": "string",
             "enum": [
               "API",
-              "CLI"
+              "CLI",
+              "PLATFORM"
             ]
           },
           "actor": {
@@ -6137,6 +6168,10 @@
             "items": {
               "$ref": "#/components/schemas/TenantChoiceDto"
             }
+          },
+          "platformOperator": {
+            "type": "boolean",
+            "description": "Whether the person may open the platform area. Only to show it: the server checks every platform route itself"
           }
         },
         "required": [
@@ -6145,7 +6180,8 @@
           "permissions",
           "modules",
           "companies",
-          "tenants"
+          "tenants",
+          "platformOperator"
         ]
       },
       "AuthEventDto": {
@@ -6715,6 +6751,43 @@
           "name",
           "permissions",
           "version"
+        ]
+      },
+      "PlatformModuleDto": {
+        "type": "object",
+        "properties": {
+          "key": {
+            "type": "string",
+            "example": "orders"
+          },
+          "requires": {
+            "example": [
+              "registry",
+              "warehouse"
+            ],
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "requiredBy": {
+            "example": [],
+            "description": "The modules that need this one",
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "alwaysOn": {
+            "type": "boolean",
+            "description": "Always enabled: it cannot be switched off"
+          }
+        },
+        "required": [
+          "key",
+          "requires",
+          "requiredBy",
+          "alwaysOn"
         ]
       },
       "PartyKind": {

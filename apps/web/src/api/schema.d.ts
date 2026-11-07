@@ -394,6 +394,23 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/platform/modules": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** The modules a tenant can have, with their dependencies */
+        get: operations["PlatformController_modules"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/parties": {
         parameters: {
             query?: never;
@@ -1501,7 +1518,7 @@ export interface components {
             /** @example MEMBER_ADDED */
             type: string;
             /** @enum {string} */
-            source: "API" | "CLI";
+            source: "API" | "CLI" | "PLATFORM";
             /** @description Empty for the terminal operator */
             actor: components["schemas"]["AuditActorDto"] | null;
             subjectType?: string | null;
@@ -1658,6 +1675,8 @@ export interface components {
             companies: components["schemas"]["MeCompanyDto"][];
             /** @description Every tenant the person can switch to */
             tenants: components["schemas"]["TenantChoiceDto"][];
+            /** @description Whether the person may open the platform area. Only to show it: the server checks every platform route itself */
+            platformOperator: boolean;
         };
         AuthEventDto: {
             id: string;
@@ -1807,6 +1826,24 @@ export interface components {
             permissions: ("parties:read" | "parties:write" | "items:read" | "items:write" | "stock:read" | "stock:write" | "warehouses:manage" | "orders:read" | "orders:write" | "orders:fulfil" | "invoicing:read" | "invoicing:write" | "invoicing:issue" | "payments:write" | "companies:manage" | "members:read" | "members:manage" | "roles:manage" | "audit:read")[];
             /** @example 1 */
             version: number;
+        };
+        PlatformModuleDto: {
+            /** @example orders */
+            key: string;
+            /**
+             * @example [
+             *       "registry",
+             *       "warehouse"
+             *     ]
+             */
+            requires: string[];
+            /**
+             * @description The modules that need this one
+             * @example []
+             */
+            requiredBy: string[];
+            /** @description Always enabled: it cannot be switched off */
+            alwaysOn: boolean;
         };
         /** @enum {string} */
         PartyKind: "PRIVATE" | "SOLE_TRADER" | "COMPANY" | "ORGANIZATION";
@@ -3863,6 +3900,25 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["CustomRoleDto"];
+                };
+            };
+        };
+    };
+    PlatformController_modules: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PlatformModuleDto"][];
                 };
             };
         };

@@ -336,4 +336,13 @@ export class IdentityRepository {
       FOR UPDATE`;
     return rows[0] ?? null;
   }
+
+  // --- Platform operators -------------------------------------------------------------------
+
+  /** Whether the person in the context (app.user_id) holds an open operator grant. */
+  async isPlatformOperator(db: DbClient): Promise<boolean> {
+    const [row] = await db.$queryRaw<{ active: boolean }[]>`
+      SELECT app_platform_operator_active() AS active`;
+    return row?.active === true;
+  }
 }

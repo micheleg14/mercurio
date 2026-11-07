@@ -174,4 +174,9 @@ export class MeDto {
   companies!: MeCompanyDto[];
   @ApiProperty({ type: [TenantChoiceDto], description: 'Every tenant the person can switch to' })
   tenants!: TenantChoiceDto[];
+  @ApiProperty({
+    description:
+      'Whether the person may open the platform area. Only to show it: the server checks every platform route itself',
+  })
+  platformOperator!: boolean;
 }

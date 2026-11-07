@@ -2,9 +2,10 @@ import { type CanActivate, type ExecutionContext, HttpStatus, Injectable } from 
 import { Reflector } from '@nestjs/core';
 import type { Request } from 'express';
 import { DomainException } from '../../shared/errors/index.js';
-import { REQUIRED_PERMISSION, type Permission } from '../identity/index.js';
+import { UserDatabase } from '../../prisma/index.js';
+import { IdentityService, REQUIRED_PERMISSION, type Permission } from '../identity/index.js';
 import { AuthContextService } from './auth-context.js';
-import { IS_PUBLIC, REQUIRES_COMPANY } from './decorators.js';
+import { IS_PUBLIC, REQUIRES_COMPANY, REQUIRES_PLATFORM_OPERATOR } from './decorators.js';
 import { getAuthFailure } from './request-state.js';
 
 /** First guard: nothing is reachable without a valid session, except routes marked @Public(). */
@@ -84,6 +85,37 @@ export class CompanyGuard implements CanActivate {
     if (auth.companyHeader === 'invalid') {
       throw new DomainException('COMPANY_NOT_ACCESSIBLE', HttpStatus.FORBIDDEN);
     }
+    return true;
+  }
+}
+
+/**
+ * Enforces @RequiresPlatformOperator(): the person holds an open operator grant, read from the
+ * database on every request (a revocation from the terminal works at the next request). The
+ * database functions the platform routes call check it again by themselves.
+ */
+@Injectable()
+export class PlatformOperatorGuard implements CanActivate {
+  constructor(
+    private readonly reflector: Reflector,
+    private readonly contexts: AuthContextService,
+    private readonly users: UserDatabase,
+    private readonly identity: IdentityService,
+  ) {}
+
+  async canActivate(context: ExecutionContext): Promise<boolean> {
+    const required = this.reflector.getAllAndOverride<boolean | undefined>(
+      REQUIRES_PLATFORM_OPERATOR,
+      [context.getHandler(), context.getClass()],
+    );
+    if (!required) return true;
+
+    const auth = this.contexts.current();
+    if (!auth) throw new DomainException('UNAUTHORIZED', HttpStatus.UNAUTHORIZED);
+    const operator = await this.users.runAs(auth.userId, (tx) =>
+      this.identity.isPlatformOperator(tx),
+    );
+    if (!operator) throw new DomainException('NOT_PLATFORM_OPERATOR', HttpStatus.FORBIDDEN);
     return true;
   }
 }
