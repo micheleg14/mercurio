@@ -47,6 +47,8 @@
       "LOGGED_OUT": "Uscita",
       "LOGGED_OUT_ALL": "Uscita da tutti i dispositivi",
       "ACCOUNT_RECOVERY_ISSUED": "Recupero dell'account avviato dall'operatore",
+      "OPERATOR_GRANTED": "Ruolo di operatore della piattaforma concesso",
+      "OPERATOR_REVOKED": "Ruolo di operatore della piattaforma revocato",
       "SESSIONS_REVOKED": "Sessioni chiuse dall'operatore"
     }
   }

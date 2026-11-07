@@ -511,6 +511,73 @@ export const COMMANDS: Record<string, Command> = {
     },
   },
 
+  'grant-operator': {
+    summary:
+      'Make a person a platform operator (the first one at installation); --name creates a new identity',
+    options: { email: text, name: text },
+    required: ['email'],
+    async run({ prisma, identity, audit }, v, io) {
+      const granted = await prisma.$transaction(async (tx) => {
+        const grant = await identity.grantPlatformOperator(tx, { email: v.email!, name: v.name });
+        const activation = grant.identityCreated
+          ? await identity.issueActivationCode(tx, grant.userId)
+          : undefined;
+        await audit.recordAuthEvent(tx, {
+          userId: grant.userId,
+          type: 'OPERATOR_GRANTED',
+          details: { by: 'terminal' },
+        });
+        return { ...grant, activation };
+      });
+      io.out(`${granted.email} is now a platform operator.`);
+      if (!granted.identityCreated) io.out('Existing identity: they sign in as usual.');
+      if (granted.activation) printActivation(io, granted.activation, granted.email);
+      io.audit({ command: 'grant-operator', email: granted.email });
+    },
+  },
+
+  'revoke-operator': {
+    summary: 'Revoke a platform operator, effective at their next request',
+    options: { email: text, reason: text },
+    required: ['email', 'reason'],
+    async run({ prisma, identity, audit }, v, io) {
+      const revoked = await prisma.$transaction(async (tx) => {
+        const grant = await identity.revokePlatformOperator(tx, {
+          email: v.email!,
+          reason: v.reason!,
+        });
+        await audit.recordAuthEvent(tx, {
+          userId: grant.userId,
+          type: 'OPERATOR_REVOKED',
+          details: { by: 'terminal', reason: v.reason!.trim() },
+        });
+        return grant;
+      });
+      io.out(`${revoked.email} is no longer a platform operator.`);
+      // Sessions belong to the person, who may work in tenants too: they stay open.
+      io.out(
+        `If the account is compromised, close its sessions too: revoke-sessions --email ${revoked.email}`,
+      );
+      io.audit({ command: 'revoke-operator', email: revoked.email });
+    },
+  },
+
+  'list-operators': {
+    summary: 'List platform operators, current and revoked',
+    options: {},
+    required: [],
+    async run({ prisma, identity }, _v, io) {
+      const grants = await identity.listPlatformOperators(prisma);
+      if (grants.length === 0) io.out('No platform operators yet: grant-operator adds the first.');
+      for (const g of grants) {
+        const state = g.revokedAt
+          ? `revoked ${g.revokedAt.toISOString()} (${g.revokeReason})`
+          : 'active';
+        io.out(`${g.user.email}  ${g.user.name}  granted ${g.grantedAt.toISOString()}  ${state}`);
+      }
+    },
+  },
+
   'list-tenants': {
     summary: 'List tenants with their companies, modules and members',
     options: {},

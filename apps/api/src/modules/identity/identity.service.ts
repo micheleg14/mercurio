@@ -275,6 +275,54 @@ export class IdentityService {
     return this.repository.isPlatformOperator(db);
   }
 
+  /**
+   * Makes a person a platform operator (terminal commands, owner role). An unknown email becomes
+   * a new identity when a name is given; the caller then issues its activation code. One open
+   * grant per person: granting twice is refused.
+   */
+  async grantPlatformOperator(db: DbClient, input: { email: string; name?: string }) {
+    const email = normalizeEmail(input.email);
+    const existing = await this.repository.findUserByEmail(db, email);
+    if (!existing && !input.name) {
+      throw new DomainException('USER_NOT_FOUND', HttpStatus.NOT_FOUND, {
+        detail: `${email}: add --name to create the identity`,
+      });
+    }
+    const person = await this.repository.findOrCreatePerson(db, {
+      id: uuidv7(),
+      email,
+      name: normalizeName(input.name ?? existing!.name),
+    });
+    if (person.status !== 'ACTIVE') {
+      throw new DomainException('USER_DISABLED', HttpStatus.CONFLICT, { detail: email });
+    }
+    if (await this.repository.findOpenOperatorGrant(db, person.userId)) {
+      throw new DomainException('ALREADY_PLATFORM_OPERATOR', HttpStatus.CONFLICT, {
+        detail: email,
+      });
+    }
+    const grant = await this.repository.createOperatorGrant(db, { userId: person.userId });
+    return { grantId: grant.id, userId: person.userId, email, identityCreated: person.created };
+  }
+
+  /** Closes the open grant of a person; the row stays as history. */
+  async revokePlatformOperator(db: DbClient, input: { email: string; reason: string }) {
+    const email = normalizeEmail(input.email);
+    const reason = input.reason.trim();
+    if (!reason) throw new DomainException('STATUS_REASON_REQUIRED', HttpStatus.BAD_REQUEST);
+    const user = await this.repository.findUserByEmail(db, email);
+    const grant = user ? await this.repository.findOpenOperatorGrant(db, user.id) : null;
+    if (!user || !grant) {
+      throw new DomainException('NOT_PLATFORM_OPERATOR', HttpStatus.NOT_FOUND, { detail: email });
+    }
+    await this.repository.revokeOperatorGrant(db, grant.id, { reason });
+    return { grantId: grant.id, userId: user.id, email };
+  }
+
+  listPlatformOperators(db: DbClient) {
+    return this.repository.listOperatorGrants(db);
+  }
+
   /** Tenants where the person is an active member, with their role there. */
   async listActiveMemberships(db: DbClient, userId: string) {
     const memberships = await this.repository.listActiveMemberships(db, userId);
