@@ -1,5 +1,5 @@
 import { useQueryClient } from '@tanstack/react-query';
-import { LogOutIcon, MenuIcon, UserIcon, XIcon } from 'lucide-react';
+import { Building2Icon, LogOutIcon, MenuIcon, UserIcon, XIcon } from 'lucide-react';
 import { useEffect, useId, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Link, NavLink, Outlet, useLocation, useNavigate } from 'react-router';
@@ -107,6 +107,7 @@ function AppSidebar() {
 /** What the sidebar holds; `panel` is the version opened over the content on phones and tablets. */
 function SidebarBody({ panel = false }: { panel?: boolean }) {
   const { t } = useTranslation();
+  const { t: tp } = useTranslation('platform');
   const roleLabel = useRoleLabel();
   const me = useMe().data;
   const { pathname } = useLocation();
@@ -210,6 +211,28 @@ function SidebarBody({ panel = false }: { panel?: boolean }) {
               <span>{t('nav.account')}</span>
             </SidebarMenuButton>
           </SidebarMenuItem>
+          {/* Only to show the way: the platform routes check the operator themselves. */}
+          {me?.platformOperator && (
+            <SidebarMenuItem>
+              <SidebarMenuButton
+                tooltip={tp('nav.open')}
+                size={panel ? 'lg' : 'default'}
+                render={
+                  <Link
+                    to="/platform"
+                    onClick={(event) => {
+                      event.preventDefault();
+                      closePanel();
+                      unsavedChanges.requestLeave(() => void navigate('/platform'));
+                    }}
+                  />
+                }
+              >
+                <Building2Icon />
+                <span>{tp('nav.open')}</span>
+              </SidebarMenuButton>
+            </SidebarMenuItem>
+          )}
           <SidebarMenuItem>
             <SidebarMenuButton
               tooltip={t('nav.signOut')}

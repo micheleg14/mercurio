@@ -6,6 +6,7 @@ import enHome from '@/locales/en/home.json';
 import enInvoicing from '@/locales/en/invoicing.json';
 import enMembers from '@/locales/en/members.json';
 import enOrders from '@/locales/en/orders.json';
+import enPlatform from '@/locales/en/platform.json';
 import enRegistry from '@/locales/en/registry.json';
 import enSettings from '@/locales/en/settings.json';
 import enCommon from '@/locales/en/common.json';
@@ -19,6 +20,7 @@ import itHome from '@/locales/it/home.json';
 import itInvoicing from '@/locales/it/invoicing.json';
 import itMembers from '@/locales/it/members.json';
 import itOrders from '@/locales/it/orders.json';
+import itPlatform from '@/locales/it/platform.json';
 import itRegistry from '@/locales/it/registry.json';
 import itSettings from '@/locales/it/settings.json';
 import itCommon from '@/locales/it/common.json';
@@ -41,6 +43,7 @@ export const resources = {
     invoicing: itInvoicing,
     members: itMembers,
     orders: itOrders,
+    platform: itPlatform,
     registry: itRegistry,
     settings: itSettings,
     warehouse: itWarehouse,
@@ -56,6 +59,7 @@ export const resources = {
     invoicing: enInvoicing,
     members: enMembers,
     orders: enOrders,
+    platform: enPlatform,
     registry: enRegistry,
     settings: enSettings,
     warehouse: enWarehouse,

@@ -9,6 +9,7 @@
   "who": "Chi",
   "subject": "Riguarda",
   "terminal": "Operatore (terminale)",
+  "platform": "Operatore Mercurio",
   "type": {
     "TENANT_SELECTED": "Cliente aperto",
     "TENANT_CREATED": "Cliente creato",
@@ -53,7 +54,10 @@
     "INVOICE_ISSUED": "Fattura emessa",
     "CREDIT_NOTE_ISSUED": "Nota di credito emessa",
     "PAYMENT_RECORDED": "Incasso registrato",
-    "PAYMENT_REVERSED": "Incasso annullato"
+    "PAYMENT_REVERSED": "Incasso annullato",
+    "TENANT_RENAMED": "Cliente rinominato",
+    "TENANT_SUSPENDED": "Cliente sospeso",
+    "TENANT_REACTIVATED": "Cliente riattivato"
   },
   "subjectType": {
     "party": "Soggetto",

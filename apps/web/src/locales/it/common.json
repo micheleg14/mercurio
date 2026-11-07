@@ -101,5 +101,14 @@
   "charts": {
     "showTable": "Mostra come tabella",
     "showChart": "Mostra il grafico"
+  },
+  "activationCode": {
+    "title": "Codice di attivazione per {{name}}",
+    "description": "Viene mostrato solo ora e scade il {{date}}. Consegnalo alla persona in modo riservato: con il codice sceglie la password e configura l'autenticazione a due fattori.",
+    "message": "Ciao {{name}}, per entrare in Mercurio apri questo indirizzo entro il {{date}}:\n\n{{url}}\n\nSe la pagina chiede il codice, è questo: {{code}}",
+    "copy": "Copia messaggio",
+    "copied": "Messaggio copiato",
+    "close": "Chiudi",
+    "closeHint": "Chiusa la finestra il codice non si rivede: se si perde, genera un nuovo codice."
   }
 }

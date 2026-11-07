@@ -13,7 +13,7 @@ import { useMe } from '@/lib/auth/me';
 import { useRoleLabel } from '@/lib/auth/role';
 import { formatInstantDate } from '@/lib/format';
 import { useListParams } from '@/lib/list-params';
-import { ActivationCodeDialog } from './ActivationCodeDialog';
+import { ActivationCodeDialog } from '@/components/shared/ActivationCodeDialog';
 import { MemberForm } from './MemberForm';
 import {
   type ActivationCode,

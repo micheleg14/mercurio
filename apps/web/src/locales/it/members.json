@@ -38,16 +38,7 @@
     },
     "removeTitle": "Rimuovere {{name}}?",
     "removeDescription": "Non potrà più entrare in questo cliente, già dalla prossima richiesta. La sua storia resta nel registro attività, e puoi aggiungerla di nuovo quando vuoi.",
-    "existing": "{{email}} ha già un account Mercurio: entrerà con le sue credenziali e troverà {{tenant}} tra i clienti.",
-    "code": {
-      "title": "Codice di attivazione per {{name}}",
-      "description": "Viene mostrato solo ora e scade il {{date}}. Consegnalo alla persona in modo riservato: con il codice sceglie la password e configura l'autenticazione a due fattori.",
-      "message": "Ciao {{name}}, per entrare in Mercurio apri questo indirizzo entro il {{date}}:\n\n{{url}}\n\nSe la pagina chiede il codice, è questo: {{code}}",
-      "copy": "Copia messaggio",
-      "copied": "Messaggio copiato",
-      "close": "Chiudi",
-      "closeHint": "Chiusa la finestra il codice non si rivede: se si perde, genera un nuovo codice."
-    }
+    "existing": "{{email}} ha già un account Mercurio: entrerà con le sue credenziali e troverà {{tenant}} tra i clienti."
   },
   "roles": {
     "title": "Ruoli",

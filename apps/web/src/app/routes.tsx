@@ -34,7 +34,11 @@ import { ItemStockPage } from '@/features/warehouse/ItemStockPage';
 import { NewDocumentPage } from '@/features/warehouse/NewDocumentPage';
 import { StockPage } from '@/features/warehouse/StockPage';
 import { WarehousesPage } from '@/features/warehouse/WarehousesPage';
-import { RequireAnonymous, RequireSession } from './AuthProvider';
+import { NewTenantPage } from '@/features/platform/NewTenantPage';
+import { TenantPage } from '@/features/platform/TenantPage';
+import { TenantsPage } from '@/features/platform/TenantsPage';
+import { RequireAnonymous, RequirePlatformOperator, RequireSession } from './AuthProvider';
+import { PlatformLayout } from './PlatformLayout';
 import { ProtectedLayout } from './ProtectedLayout';
 
 /** Every screen of the app; the guards decide who may see which. */
@@ -96,6 +100,23 @@ export const routes = [
           { path: 'settings/companies', element: <CompaniesPage /> },
           { path: 'members', element: <MembersPage /> },
           { path: 'roles', element: <RolesPage /> },
+        ],
+      },
+    ],
+  },
+  {
+    // The platform area needs no tenant (docs/adr/0038).
+    path: 'platform',
+    element: <RequirePlatformOperator />,
+    children: [
+      {
+        element: <PlatformLayout />,
+        children: [
+          { index: true, element: <Navigate to="tenants" replace /> },
+          { path: 'tenants', element: <TenantsPage /> },
+          { path: 'tenants/new', element: <NewTenantPage /> },
+          { path: 'tenants/:id', element: <TenantPage /> },
+          { path: 'account', element: <AccountPage /> },
         ],
       },
     ],
