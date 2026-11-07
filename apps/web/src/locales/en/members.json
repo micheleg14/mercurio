@@ -38,16 +38,7 @@
     },
     "removeTitle": "Remove {{name}}?",
     "removeDescription": "They can no longer enter this customer, from their next request. Their history stays in the activity log, and you can add them again at any time.",
-    "existing": "{{email}} already has a Mercurio account: they sign in with their own credentials and find {{tenant}} among their customers.",
-    "code": {
-      "title": "Activation code for {{name}}",
-      "description": "Shown only now, and valid until {{date}}. Hand it over privately: with it the person chooses a password and sets up two-factor authentication.",
-      "message": "Hello {{name}}, to enter Mercurio open this address by {{date}}:\n\n{{url}}\n\nIf the page asks for the code, it is: {{code}}",
-      "copy": "Copy message",
-      "copied": "Message copied",
-      "close": "Close",
-      "closeHint": "Once this window is closed the code cannot be seen again: if it is lost, issue a new one."
-    }
+    "existing": "{{email}} already has a Mercurio account: they sign in with their own credentials and find {{tenant}} among their customers."
   },
   "roles": {
     "title": "Roles",

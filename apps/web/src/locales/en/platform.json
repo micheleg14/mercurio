@@ -1,0 +1,131 @@
+{
+  "area": "Platform",
+  "nav": {
+    "tenants": "Customers",
+    "backToTenants": "Back to your customers",
+    "open": "Platform"
+  },
+  "modules": {
+    "registry": {
+      "name": "Registry",
+      "description": "Parties, items and companies. Always on: the base of the other modules."
+    },
+    "warehouse": {
+      "name": "Warehouse",
+      "description": "Warehouses, movements, stock and reorder levels."
+    },
+    "orders": {
+      "name": "Orders",
+      "description": "Customer and supplier orders, with reservation and fulfilment."
+    },
+    "invoicing": {
+      "name": "Invoicing",
+      "description": "Invoices, credit notes, due dates and payments."
+    },
+    "alwaysOn": "Always on",
+    "needs": "Needs {{modules}}",
+    "neededBy": "Needed by {{modules}}: switch that off first",
+    "disableTitle": "Switch off {{module}}?",
+    "disableDescription": "The data of {{module}} stays, and shows again if the module is switched back on. The people of {{tenant}} will no longer see its pages.",
+    "disable": "Switch off",
+    "save": "Save modules",
+    "saved": "Modules saved."
+  },
+  "status": {
+    "ACTIVE": "Active",
+    "SUSPENDED": "Suspended"
+  },
+  "tenants": {
+    "title": "Customers",
+    "description": "The customers using Mercurio. Here you create them and govern their modules, administrators and status; their working data stays theirs.",
+    "new": "New customer",
+    "search": "Search by name or identifier",
+    "allStatuses": "All statuses",
+    "filterStatus": "Status",
+    "empty": "No customers.",
+    "columns": {
+      "name": "Customer",
+      "status": "Status",
+      "modules": "Modules",
+      "companies": "Companies",
+      "people": "People",
+      "createdAt": "Created on"
+    }
+  },
+  "create": {
+    "title": "New customer",
+    "description": "The customer starts with its first company, the chosen modules and its first administrator. Other companies, warehouses and colleagues are added by the administrator afterwards.",
+    "tenant": "Customer",
+    "name": "Name",
+    "nameHint": "As people see it, for example “Verdi Group”.",
+    "slug": "Identifier",
+    "slugHint": "Lowercase letters, digits and dashes. Used by commands and logs: it never changes after creation.",
+    "company": "First company",
+    "legalName": "Company name",
+    "vatNumber": "VAT number",
+    "taxCode": "Tax code",
+    "taxCodeHint": "Optional.",
+    "country": "Country",
+    "modules": "Modules",
+    "admin": "First administrator",
+    "adminEmail": "Email",
+    "adminName": "Full name",
+    "adminNameHint": "Ignored if the person already has a Mercurio account.",
+    "submit": "Create customer",
+    "existing": "{{email}} already has a Mercurio account: they sign in as usual and will find {{tenant}} among their customers."
+  },
+  "tenant": {
+    "back": "Customers",
+    "data": "Details",
+    "name": "Name",
+    "slug": "Identifier",
+    "createdAt": "Created on",
+    "status": "Status",
+    "statusSince": "since {{date}}",
+    "reason": "Reason: {{reason}}",
+    "rename": "Rename",
+    "saveName": "Save name",
+    "companies": "Companies",
+    "companiesHint": "The customer's administrator adds them, from the Companies page.",
+    "modules": "Modules",
+    "admins": "Administrators",
+    "otherPeople_one": "{{count}} other person works for the customer.",
+    "otherPeople_other": "{{count}} other people work for the customer.",
+    "noOtherPeople": "Nobody else works for the customer.",
+    "activated": "Active",
+    "pending": "Awaiting activation",
+    "lastSeen": "Last seen: {{date}}",
+    "never": "Has not used the customer yet",
+    "newCode": "New code",
+    "addAdmin": "Add administrator",
+    "addAdminTitle": "New administrator",
+    "add": "Add",
+    "promoteTitle": "Make {{email}} an administrator?",
+    "promoteDescription": "This person already works for the customer with the role “{{role}}”. They will become an administrator, with access to every company.",
+    "promote": "Make administrator",
+    "existingAdmin": "{{email}} already has a Mercurio account: they sign in as usual.",
+    "promoted": "{{email}} is now an administrator.",
+    "suspension": "Suspension",
+    "suspendHint": "A suspended customer cannot work until you reactivate it. The data stays.",
+    "reactivateHint": "The customer is suspended: its people cannot work.",
+    "reasonLabel": "Reason",
+    "reasonHint": "Kept in the customer's log.",
+    "suspend": "Suspend",
+    "reactivate": "Reactivate",
+    "suspendTitle": "Suspend {{tenant}}?",
+    "suspendDescription": "The people of {{tenant}} will not be able to work until you reactivate it. The data stays.",
+    "history": "History",
+    "historyHint": "What operators did on this customer.",
+    "historyEmpty": "No actions.",
+    "event": {
+      "TENANT_CREATED": "Customer created",
+      "TENANT_RENAMED": "Renamed from “{{before}}” to “{{after}}”",
+      "TENANT_SUSPENDED": "Suspended: {{reason}}",
+      "TENANT_REACTIVATED": "Reactivated: {{reason}}",
+      "MODULES_CHANGED": "Modules: {{modules}}",
+      "MEMBER_ADDED": "Administrator added: {{email}}",
+      "MEMBER_UPDATED": "Made administrator: {{email}}",
+      "ACTIVATION_CODE_ISSUED": "Activation code for {{email}}"
+    }
+  }
+}

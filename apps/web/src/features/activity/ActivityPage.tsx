@@ -11,6 +11,9 @@ import { formatTime } from '@/lib/format';
 const TYPES = [
   'TENANT_SELECTED',
   'TENANT_CREATED',
+  'TENANT_RENAMED',
+  'TENANT_SUSPENDED',
+  'TENANT_REACTIVATED',
   'MEMBER_ADDED',
   'MEMBER_UPDATED',
   'MEMBER_REMOVED',
@@ -128,7 +131,9 @@ export function ActivityPage() {
             key: 'who',
             header: t('who'),
             card: 'subtitle',
-            cell: (row) => row.actor?.name ?? t('terminal'),
+            // The platform operator is not a member: their name is not readable here (ADR 0038).
+            cell: (row) =>
+              row.actor?.name ?? (row.source === 'PLATFORM' ? t('platform') : t('terminal')),
           },
           {
             key: 'subject',

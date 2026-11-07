@@ -12,7 +12,11 @@ import {
 } from '@/components/ui/alert-dialog';
 import { Button } from '@/components/ui/button';
 import { formatInstantDate } from '@/lib/format';
-import type { ActivationCode } from './queries';
+/** A code as the API returns it, for a colleague (members) or an administrator (platform). */
+export interface ActivationCode {
+  code: string;
+  expiresAt: string;
+}
 
 interface ActivationCodeDialogProps {
   open: boolean;
@@ -22,13 +26,13 @@ interface ActivationCodeDialogProps {
 }
 
 /**
- * The activation code of a new colleague, shown once (docs/adr/0037): only its hash is stored, so
- * closing the window loses it. No email is sent: the administrator hands it over, with a message
+ * The activation code of a new person, shown once (docs/adr/0037, 0038): only its hash is stored,
+ * so closing the window loses it. No email is sent: whoever made it hands it over, with a message
  * ready to copy. The link carries the code after `#`, as the terminal commands print it: a
  * fragment never reaches the server, so it stays out of request logs.
  */
 export function ActivationCodeDialog({ open, name, code, onClose }: ActivationCodeDialogProps) {
-  const { t, i18n } = useTranslation('members');
+  const { t, i18n } = useTranslation();
   const [copied, setCopied] = useState(false);
   // The last code shown stays while the dialog fades out, so it never empties before closing.
   const [last, setLast] = useState<{ name: string; code: ActivationCode } | null>(null);
@@ -39,7 +43,7 @@ export function ActivationCodeDialog({ open, name, code, onClose }: ActivationCo
     ? `${window.location.origin}${import.meta.env.BASE_URL}activate#${encodeURIComponent(shown.code.code)}`
     : '';
   const message = shown
-    ? t('members.code.message', { name: shown.name, url, date, code: shown.code.code })
+    ? t('activationCode.message', { name: shown.name, url, date, code: shown.code.code })
     : '';
 
   return (
@@ -55,9 +59,11 @@ export function ActivationCodeDialog({ open, name, code, onClose }: ActivationCo
       <AlertDialogContent>
         <AlertDialogHeader>
           <AlertDialogTitle>
-            {t('members.code.title', { name: shown?.name ?? '' })}
+            {t('activationCode.title', { name: shown?.name ?? '' })}
           </AlertDialogTitle>
-          <AlertDialogDescription>{t('members.code.description', { date })}</AlertDialogDescription>
+          <AlertDialogDescription>
+            {t('activationCode.description', { date })}
+          </AlertDialogDescription>
         </AlertDialogHeader>
         <code
           data-testid="activation-code"
@@ -73,9 +79,9 @@ export function ActivationCodeDialog({ open, name, code, onClose }: ActivationCo
           }}
         >
           {copied ? <CheckIcon data-icon="inline-start" /> : <CopyIcon data-icon="inline-start" />}
-          {copied ? t('members.code.copied') : t('members.code.copy')}
+          {copied ? t('activationCode.copied') : t('activationCode.copy')}
         </Button>
-        <p className="text-muted-foreground text-xs">{t('members.code.closeHint')}</p>
+        <p className="text-muted-foreground text-xs">{t('activationCode.closeHint')}</p>
         <AlertDialogFooter>
           <AlertDialogAction
             onClick={() => {
@@ -83,7 +89,7 @@ export function ActivationCodeDialog({ open, name, code, onClose }: ActivationCo
               onClose();
             }}
           >
-            {t('members.code.close')}
+            {t('activationCode.close')}
           </AlertDialogAction>
         </AlertDialogFooter>
       </AlertDialogContent>

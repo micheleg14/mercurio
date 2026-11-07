@@ -101,5 +101,14 @@
   "charts": {
     "showTable": "Show as a table",
     "showChart": "Show the chart"
+  },
+  "activationCode": {
+    "title": "Activation code for {{name}}",
+    "description": "Shown only now, and valid until {{date}}. Hand it over privately: with it the person chooses a password and sets up two-factor authentication.",
+    "message": "Hello {{name}}, to enter Mercurio open this address by {{date}}:\n\n{{url}}\n\nIf the page asks for the code, it is: {{code}}",
+    "copy": "Copy message",
+    "copied": "Message copied",
+    "close": "Close",
+    "closeHint": "Once this window is closed the code cannot be seen again: if it is lost, issue a new one."
   }
 }

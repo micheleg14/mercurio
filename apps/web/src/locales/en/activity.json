@@ -9,6 +9,7 @@
   "who": "Who",
   "subject": "Concerns",
   "terminal": "Operator (terminal)",
+  "platform": "Mercurio operator",
   "type": {
     "TENANT_SELECTED": "Customer opened",
     "TENANT_CREATED": "Customer created",
@@ -53,7 +54,10 @@
     "INVOICE_ISSUED": "Invoice issued",
     "CREDIT_NOTE_ISSUED": "Credit note issued",
     "PAYMENT_RECORDED": "Payment recorded",
-    "PAYMENT_REVERSED": "Payment undone"
+    "PAYMENT_REVERSED": "Payment undone",
+    "TENANT_RENAMED": "Customer renamed",
+    "TENANT_SUSPENDED": "Customer suspended",
+    "TENANT_REACTIVATED": "Customer reactivated"
   },
   "subjectType": {
     "party": "Party",

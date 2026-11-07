@@ -1,0 +1,131 @@
+{
+  "area": "Piattaforma",
+  "nav": {
+    "tenants": "Clienti",
+    "backToTenants": "Torna ai tuoi clienti",
+    "open": "Piattaforma"
+  },
+  "modules": {
+    "registry": {
+      "name": "Anagrafiche",
+      "description": "Soggetti, articoli e aziende. Sempre attivo: è la base degli altri moduli."
+    },
+    "warehouse": {
+      "name": "Magazzino",
+      "description": "Magazzini, movimenti, giacenze e soglie di riordino."
+    },
+    "orders": {
+      "name": "Ordini",
+      "description": "Ordini di clienti e fornitori, con prenotazione ed evasione della merce."
+    },
+    "invoicing": {
+      "name": "Fatturazione",
+      "description": "Fatture, note di credito, scadenze e incassi."
+    },
+    "alwaysOn": "Sempre attivo",
+    "needs": "Richiede {{modules}}",
+    "neededBy": "Serve a {{modules}}: disattiva prima quello",
+    "disableTitle": "Disattivare {{module}}?",
+    "disableDescription": "I dati di {{module}} restano e tornano visibili se il modulo viene riattivato. Le persone di {{tenant}} non vedranno più le sue pagine.",
+    "disable": "Disattiva",
+    "save": "Salva i moduli",
+    "saved": "Moduli salvati."
+  },
+  "status": {
+    "ACTIVE": "Attivo",
+    "SUSPENDED": "Sospeso"
+  },
+  "tenants": {
+    "title": "Clienti",
+    "description": "I clienti che usano Mercurio. Da qui li crei e ne governi moduli, amministratori e stato; i loro dati di lavoro restano loro.",
+    "new": "Nuovo cliente",
+    "search": "Cerca per nome o identificativo",
+    "allStatuses": "Tutti gli stati",
+    "filterStatus": "Stato",
+    "empty": "Nessun cliente.",
+    "columns": {
+      "name": "Cliente",
+      "status": "Stato",
+      "modules": "Moduli",
+      "companies": "Aziende",
+      "people": "Persone",
+      "createdAt": "Creato il"
+    }
+  },
+  "create": {
+    "title": "Nuovo cliente",
+    "description": "Il cliente nasce con la prima azienda, i moduli scelti e il suo primo amministratore. Le altre aziende, i magazzini e i colleghi li aggiunge poi l'amministratore.",
+    "tenant": "Cliente",
+    "name": "Nome",
+    "nameHint": "Come lo vedono le persone, per esempio «Gruppo Verdi».",
+    "slug": "Identificativo",
+    "slugHint": "Lettere minuscole, cifre e trattini. Lo usano comandi e registri: dopo la creazione non cambia.",
+    "company": "Prima azienda",
+    "legalName": "Ragione sociale",
+    "vatNumber": "Partita IVA",
+    "taxCode": "Codice fiscale",
+    "taxCodeHint": "Facoltativo.",
+    "country": "Paese",
+    "modules": "Moduli",
+    "admin": "Primo amministratore",
+    "adminEmail": "Email",
+    "adminName": "Nome e cognome",
+    "adminNameHint": "Ignorato se la persona ha già un account Mercurio.",
+    "submit": "Crea il cliente",
+    "existing": "{{email}} ha già un account Mercurio: entrerà con le sue credenziali e troverà {{tenant}} tra i suoi clienti."
+  },
+  "tenant": {
+    "back": "Clienti",
+    "data": "Dati",
+    "name": "Nome",
+    "slug": "Identificativo",
+    "createdAt": "Creato il",
+    "status": "Stato",
+    "statusSince": "dal {{date}}",
+    "reason": "Motivo: {{reason}}",
+    "rename": "Rinomina",
+    "saveName": "Salva il nome",
+    "companies": "Aziende",
+    "companiesHint": "Le aggiunge l'amministratore del cliente, dalla pagina Aziende.",
+    "modules": "Moduli",
+    "admins": "Amministratori",
+    "otherPeople_one": "Nel cliente lavora anche {{count}} altra persona.",
+    "otherPeople_other": "Nel cliente lavorano anche altre {{count}} persone.",
+    "noOtherPeople": "Nel cliente non lavorano altre persone.",
+    "activated": "Attivo",
+    "pending": "In attesa di attivazione",
+    "lastSeen": "Ultimo accesso: {{date}}",
+    "never": "Non ha ancora usato il cliente",
+    "newCode": "Nuovo codice",
+    "addAdmin": "Aggiungi amministratore",
+    "addAdminTitle": "Nuovo amministratore",
+    "add": "Aggiungi",
+    "promoteTitle": "Rendere amministratore {{email}}?",
+    "promoteDescription": "Questa persona lavora già nel cliente con il ruolo «{{role}}». Diventerà amministratore, con accesso a tutte le aziende.",
+    "promote": "Rendi amministratore",
+    "existingAdmin": "{{email}} ha già un account Mercurio: entrerà con le sue credenziali.",
+    "promoted": "{{email}} ora è amministratore.",
+    "suspension": "Sospensione",
+    "suspendHint": "Un cliente sospeso non può lavorare finché non lo riattivi. I dati restano.",
+    "reactivateHint": "Il cliente è sospeso: le sue persone non possono lavorare.",
+    "reasonLabel": "Motivo",
+    "reasonHint": "Resta nel registro del cliente.",
+    "suspend": "Sospendi",
+    "reactivate": "Riattiva",
+    "suspendTitle": "Sospendere {{tenant}}?",
+    "suspendDescription": "Le persone di {{tenant}} non potranno più lavorare finché non lo riattivi. I dati restano.",
+    "history": "Cronologia",
+    "historyHint": "Cosa hanno fatto gli operatori su questo cliente.",
+    "historyEmpty": "Nessuna azione.",
+    "event": {
+      "TENANT_CREATED": "Cliente creato",
+      "TENANT_RENAMED": "Rinominato da «{{before}}» a «{{after}}»",
+      "TENANT_SUSPENDED": "Sospeso: {{reason}}",
+      "TENANT_REACTIVATED": "Riattivato: {{reason}}",
+      "MODULES_CHANGED": "Moduli: {{modules}}",
+      "MEMBER_ADDED": "Amministratore aggiunto: {{email}}",
+      "MEMBER_UPDATED": "Reso amministratore: {{email}}",
+      "ACTIVATION_CODE_ISSUED": "Codice di attivazione per {{email}}"
+    }
+  }
+}

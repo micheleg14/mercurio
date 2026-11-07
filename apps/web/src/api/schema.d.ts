@@ -1792,6 +1792,10 @@ export interface components {
             legalName: string;
             vatNumber: string;
         };
+        SuspendedTenantDto: {
+            id: string;
+            name: string;
+        };
         MeDto: {
             user: components["schemas"]["MeUserDto"];
             tenant: components["schemas"]["MeTenantDto"] | null;
@@ -1815,6 +1819,8 @@ export interface components {
             tenants: components["schemas"]["TenantChoiceDto"][];
             /** @description Whether the person may open the platform area. Only to show it: the server checks every platform route itself */
             platformOperator: boolean;
+            /** @description Tenants of the person that are suspended: they cannot be chosen until reactivated */
+            suspendedTenants: components["schemas"]["SuspendedTenantDto"][];
         };
         AuthEventDto: {
             id: string;

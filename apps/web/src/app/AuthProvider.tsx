@@ -57,6 +57,24 @@ export function RequireSession() {
   return <Outlet />;
 }
 
+/**
+ * Wraps the platform area (docs/adr/0038): a signed-in platform operator, with or without a
+ * tenant chosen. Anyone else goes home; the API refuses them anyway (F18).
+ */
+export function RequirePlatformOperator() {
+  const session = useSession();
+  const location = useLocation();
+  const me = useMe();
+
+  if (session.status === 'loading') return <Loading />;
+  if (session.status === 'anonymous') {
+    return <Navigate to="/login" replace state={{ from: location.pathname }} />;
+  }
+  if (me.isPending) return <Loading />;
+  if (!me.data?.platformOperator) return <Navigate to="/" replace />;
+  return <Outlet />;
+}
+
 /** Routes for people who are not signed in (login, activation): a signed-in person goes home. */
 export function RequireAnonymous() {
   const session = useSession();

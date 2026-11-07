@@ -58,5 +58,7 @@ export const me = (overrides: Record<string, unknown> = {}) => ({
     { id: 'c2', legalName: 'Rossi Logistica Srl', vatNumber: '03819273640' },
   ],
   tenants: session('t-rossi').tenants,
+  platformOperator: false,
+  suspendedTenants: [],
   ...overrides,
 });
