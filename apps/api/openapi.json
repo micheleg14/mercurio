@@ -1096,6 +1096,503 @@
         ]
       }
     },
+    "/platform/tenants": {
+      "get": {
+        "operationId": "PlatformController_list",
+        "parameters": [
+          {
+            "name": "page",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "minimum": 1,
+              "default": 1,
+              "type": "number"
+            }
+          },
+          {
+            "name": "pageSize",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "minimum": 1,
+              "maximum": 100,
+              "default": 25,
+              "type": "number"
+            }
+          },
+          {
+            "name": "sort",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "example": "at:desc",
+              "type": "string"
+            }
+          },
+          {
+            "name": "q",
+            "required": false,
+            "in": "query",
+            "description": "Text to search for",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "status",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "ACTIVE",
+                "SUSPENDED"
+              ]
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PlatformTenantPageDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Tenants, with what configuring them needs (search on name or slug)",
+        "tags": [
+          "platform"
+        ]
+      },
+      "post": {
+        "operationId": "PlatformController_create",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateTenantDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CreatedTenantDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Create a tenant with its first company, modules and administrator",
+        "tags": [
+          "platform"
+        ]
+      }
+    },
+    "/platform/tenants/{id}": {
+      "get": {
+        "operationId": "PlatformController_get",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PlatformTenantDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "A tenant: data, companies, modules, administrators",
+        "tags": [
+          "platform"
+        ]
+      },
+      "patch": {
+        "operationId": "PlatformController_rename",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/RenameTenantDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PlatformTenantDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Rename the tenant (the slug never changes)",
+        "tags": [
+          "platform"
+        ]
+      }
+    },
+    "/platform/tenants/{id}/events": {
+      "get": {
+        "operationId": "PlatformController_events",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "page",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "minimum": 1,
+              "default": 1,
+              "type": "number"
+            }
+          },
+          {
+            "name": "pageSize",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "minimum": 1,
+              "maximum": 100,
+              "default": 25,
+              "type": "number"
+            }
+          },
+          {
+            "name": "sort",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "example": "at:desc",
+              "type": "string"
+            }
+          },
+          {
+            "name": "q",
+            "required": false,
+            "in": "query",
+            "description": "Text to search for",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PlatformEventPageDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "What platform operators did on the tenant, newest first",
+        "tags": [
+          "platform"
+        ]
+      }
+    },
+    "/platform/tenants/{id}/modules": {
+      "put": {
+        "operationId": "PlatformController_setModules",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SetModulesDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PlatformTenantDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Set the modules of the tenant, respecting their dependencies",
+        "tags": [
+          "platform"
+        ]
+      }
+    },
+    "/platform/tenants/{id}/suspend": {
+      "post": {
+        "operationId": "PlatformController_suspend",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/StatusChangeDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PlatformTenantDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Suspend the tenant: its people cannot work until it is reactivated",
+        "tags": [
+          "platform"
+        ]
+      }
+    },
+    "/platform/tenants/{id}/reactivate": {
+      "post": {
+        "operationId": "PlatformController_reactivate",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/StatusChangeDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PlatformTenantDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Reactivate a suspended tenant",
+        "tags": [
+          "platform"
+        ]
+      }
+    },
+    "/platform/tenants/{id}/admins": {
+      "post": {
+        "operationId": "PlatformController_addAdmin",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/AddAdminDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AddedAdminDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Add an administrator to the tenant",
+        "tags": [
+          "platform"
+        ]
+      }
+    },
+    "/platform/tenants/{id}/admins/{userId}/activation-code": {
+      "post": {
+        "operationId": "PlatformController_issueAdminCode",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "userId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PlatformActivationCodeDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "A new activation code for an administrator not yet activated",
+        "tags": [
+          "platform"
+        ]
+      }
+    },
     "/parties": {
       "get": {
         "operationId": "PartiesController_list",
@@ -6788,6 +7285,517 @@
           "requires",
           "requiredBy",
           "alwaysOn"
+        ]
+      },
+      "PlatformTenantSummaryDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string",
+            "example": "Gruppo Rossi"
+          },
+          "slug": {
+            "type": "string",
+            "example": "rossi"
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "ACTIVE",
+              "SUSPENDED"
+            ]
+          },
+          "modules": {
+            "example": [
+              "registry",
+              "warehouse"
+            ],
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "companies": {
+            "type": "number",
+            "description": "Number of companies"
+          },
+          "people": {
+            "type": "number",
+            "description": "Number of people with an active membership"
+          },
+          "createdAt": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "name",
+          "slug",
+          "status",
+          "modules",
+          "companies",
+          "people",
+          "createdAt"
+        ]
+      },
+      "PlatformTenantPageDto": {
+        "type": "object",
+        "properties": {
+          "items": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/PlatformTenantSummaryDto"
+            }
+          },
+          "total": {
+            "type": "number"
+          },
+          "page": {
+            "type": "number"
+          },
+          "pageSize": {
+            "type": "number"
+          }
+        },
+        "required": [
+          "items",
+          "total",
+          "page",
+          "pageSize"
+        ]
+      },
+      "NewCompanyDto": {
+        "type": "object",
+        "properties": {
+          "legalName": {
+            "type": "string",
+            "example": "Verdi Srl"
+          },
+          "vatNumber": {
+            "type": "string",
+            "example": "01234567897"
+          },
+          "taxCode": {
+            "type": "string"
+          },
+          "country": {
+            "type": "string",
+            "example": "IT",
+            "default": "IT"
+          }
+        },
+        "required": [
+          "legalName",
+          "vatNumber"
+        ]
+      },
+      "NewAdminDto": {
+        "type": "object",
+        "properties": {
+          "email": {
+            "type": "string",
+            "example": "laura.verdi@example.com"
+          },
+          "name": {
+            "type": "string",
+            "example": "Laura Verdi",
+            "description": "Ignored when the person already has an account"
+          }
+        },
+        "required": [
+          "email",
+          "name"
+        ]
+      },
+      "CreateTenantDto": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string",
+            "example": "Gruppo Verdi"
+          },
+          "slug": {
+            "type": "string",
+            "example": "verdi",
+            "description": "Lowercase letters, digits and dashes; never changes"
+          },
+          "modules": {
+            "example": [
+              "registry",
+              "warehouse"
+            ],
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "company": {
+            "$ref": "#/components/schemas/NewCompanyDto"
+          },
+          "admin": {
+            "$ref": "#/components/schemas/NewAdminDto"
+          }
+        },
+        "required": [
+          "name",
+          "slug",
+          "modules",
+          "company",
+          "admin"
+        ]
+      },
+      "PlatformCompanyDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "legalName": {
+            "type": "string"
+          },
+          "vatNumber": {
+            "type": "string"
+          },
+          "country": {
+            "type": "string",
+            "example": "IT"
+          }
+        },
+        "required": [
+          "id",
+          "legalName",
+          "vatNumber",
+          "country"
+        ]
+      },
+      "PlatformAdminDto": {
+        "type": "object",
+        "properties": {
+          "membershipId": {
+            "type": "string"
+          },
+          "userId": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          },
+          "email": {
+            "type": "string"
+          },
+          "activated": {
+            "type": "boolean",
+            "description": "False while the person has not activated the account"
+          },
+          "canIssueCode": {
+            "type": "boolean",
+            "description": "A new activation code can be issued: never activated and in no other tenant (docs/adr/0037)"
+          },
+          "lastSeenAt": {
+            "type": "string",
+            "nullable": true,
+            "description": "Last use of this tenant"
+          }
+        },
+        "required": [
+          "membershipId",
+          "userId",
+          "name",
+          "email",
+          "activated",
+          "canIssueCode",
+          "lastSeenAt"
+        ]
+      },
+      "PlatformTenantDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          },
+          "slug": {
+            "type": "string",
+            "description": "Never changes"
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "ACTIVE",
+              "SUSPENDED"
+            ]
+          },
+          "statusReason": {
+            "type": "string",
+            "nullable": true,
+            "description": "Why it was last suspended or reactivated"
+          },
+          "statusChangedAt": {
+            "type": "string",
+            "nullable": true
+          },
+          "version": {
+            "type": "number",
+            "description": "Sent back with every change (B29)"
+          },
+          "createdAt": {
+            "type": "string"
+          },
+          "modules": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "companies": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/PlatformCompanyDto"
+            }
+          },
+          "admins": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/PlatformAdminDto"
+            }
+          },
+          "otherPeople": {
+            "type": "number",
+            "description": "People working in the tenant besides the administrators"
+          }
+        },
+        "required": [
+          "id",
+          "name",
+          "slug",
+          "status",
+          "statusReason",
+          "statusChangedAt",
+          "version",
+          "createdAt",
+          "modules",
+          "companies",
+          "admins",
+          "otherPeople"
+        ]
+      },
+      "PlatformActivationCodeDto": {
+        "type": "object",
+        "properties": {
+          "code": {
+            "type": "string",
+            "description": "Shown once: only its hash is stored"
+          },
+          "expiresAt": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "code",
+          "expiresAt"
+        ]
+      },
+      "CreatedTenantDto": {
+        "type": "object",
+        "properties": {
+          "tenant": {
+            "$ref": "#/components/schemas/PlatformTenantDto"
+          },
+          "activation": {
+            "nullable": true,
+            "type": "object",
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/PlatformActivationCodeDto"
+              }
+            ]
+          },
+          "existingAccount": {
+            "type": "boolean",
+            "description": "The administrator already had a Mercurio account"
+          }
+        },
+        "required": [
+          "tenant",
+          "activation",
+          "existingAccount"
+        ]
+      },
+      "PlatformEventDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "type": {
+            "type": "string",
+            "example": "MODULES_CHANGED"
+          },
+          "actorName": {
+            "type": "string",
+            "nullable": true,
+            "description": "The operator who acted"
+          },
+          "subjectType": {
+            "type": "string",
+            "nullable": true
+          },
+          "subjectId": {
+            "type": "string",
+            "nullable": true
+          },
+          "details": {
+            "type": "object",
+            "nullable": true
+          },
+          "at": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "type",
+          "actorName",
+          "subjectType",
+          "subjectId",
+          "details",
+          "at"
+        ]
+      },
+      "PlatformEventPageDto": {
+        "type": "object",
+        "properties": {
+          "items": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/PlatformEventDto"
+            }
+          },
+          "total": {
+            "type": "number"
+          },
+          "page": {
+            "type": "number"
+          },
+          "pageSize": {
+            "type": "number"
+          }
+        },
+        "required": [
+          "items",
+          "total",
+          "page",
+          "pageSize"
+        ]
+      },
+      "RenameTenantDto": {
+        "type": "object",
+        "properties": {
+          "version": {
+            "type": "number",
+            "minimum": 1
+          },
+          "name": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "version",
+          "name"
+        ]
+      },
+      "SetModulesDto": {
+        "type": "object",
+        "properties": {
+          "version": {
+            "type": "number",
+            "minimum": 1
+          },
+          "modules": {
+            "description": "Every module the tenant must have afterwards",
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          }
+        },
+        "required": [
+          "version",
+          "modules"
+        ]
+      },
+      "StatusChangeDto": {
+        "type": "object",
+        "properties": {
+          "version": {
+            "type": "number",
+            "minimum": 1
+          },
+          "reason": {
+            "type": "string",
+            "description": "Why: kept in the audit log of the tenant"
+          }
+        },
+        "required": [
+          "version",
+          "reason"
+        ]
+      },
+      "AddAdminDto": {
+        "type": "object",
+        "properties": {
+          "email": {
+            "type": "string",
+            "example": "laura.verdi@example.com"
+          },
+          "name": {
+            "type": "string",
+            "example": "Laura Verdi",
+            "description": "Ignored when the person already has an account"
+          },
+          "promote": {
+            "type": "boolean",
+            "description": "Confirms making ADMIN a person who is already a member with another role (409 ADMIN_PROMOTION_REQUIRED otherwise)"
+          }
+        },
+        "required": [
+          "email",
+          "name"
+        ]
+      },
+      "AddedAdminDto": {
+        "type": "object",
+        "properties": {
+          "tenant": {
+            "$ref": "#/components/schemas/PlatformTenantDto"
+          },
+          "activation": {
+            "nullable": true,
+            "type": "object",
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/PlatformActivationCodeDto"
+              }
+            ]
+          },
+          "existingAccount": {
+            "type": "boolean"
+          },
+          "promoted": {
+            "type": "boolean",
+            "description": "An existing member became ADMIN"
+          }
+        },
+        "required": [
+          "tenant",
+          "activation",
+          "existingAccount",
+          "promoted"
         ]
       },
       "PartyKind": {

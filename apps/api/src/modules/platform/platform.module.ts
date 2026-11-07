@@ -1,9 +1,8 @@
 import { Module } from '@nestjs/common';
-import { AuditModule } from '../audit/index.js';
 import { AuthModule } from '../auth/index.js';
-import { IdentityModule } from '../identity/index.js';
 import { TenancyModule } from '../tenancy/index.js';
 import { PlatformController } from './platform.controller.js';
+import { PlatformRepository } from './platform.repository.js';
 import { PlatformService } from './platform.service.js';
 
 /**
@@ -13,8 +12,8 @@ import { PlatformService } from './platform.service.js';
  * numbers, module dependencies) stay in the services of tenancy and identity.
  */
 @Module({
-  imports: [AuthModule, IdentityModule, TenancyModule, AuditModule],
+  imports: [AuthModule, TenancyModule],
   controllers: [PlatformController],
-  providers: [PlatformService],
+  providers: [PlatformService, PlatformRepository],
 })
 export class PlatformModule {}

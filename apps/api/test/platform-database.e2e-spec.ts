@@ -179,7 +179,11 @@ describe('platform operator functions (e2e)', () => {
 
       // One transaction, so the same time for all three: compared without order.
       const events = await admin.auditEvent.findMany({ where: { tenantId: row.tenant_id! } });
-      expect(events.map((e) => [e.type, e.source, e.actorUserId]).sort()).toEqual([
+      expect(
+        events
+          .map((e) => [e.type, e.source, e.actorUserId])
+          .sort((x, y) => x[0]!.localeCompare(y[0]!)),
+      ).toEqual([
         ['ACTIVATION_CODE_ISSUED', 'PLATFORM', operator],
         ['MEMBER_ADDED', 'PLATFORM', operator],
         ['TENANT_CREATED', 'PLATFORM', operator],

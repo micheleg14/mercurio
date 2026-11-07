@@ -14,6 +14,6 @@ export {
   TAX_REGIMES,
   type TaxRegime,
 } from './company-profile.js';
-export { RequiresModule } from './requires-module.js';
+export { ModuleEnabledGuard, RequiresModule } from './requires-module.js';
 export { TenancyModule } from './tenancy.module.js';
-export { type CompanyInput, TenancyService } from './tenancy.service.js';
+export { type CompanyInput, type NewTenantInput, TenancyService } from './tenancy.service.js';

@@ -1,5 +1,7 @@
 // Public surface of the identity module: other modules import from here only (B3).
 export { type CompanyAccess, canAccessCompany } from './company-access.js';
+export { newActivationCode } from './activation-code.js';
+export { normalizeEmail } from './email.js';
 export { IdentityModule } from './identity.module.js';
 export {
   type Actor,
