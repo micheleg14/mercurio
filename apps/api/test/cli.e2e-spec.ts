@@ -228,7 +228,8 @@ describe('terminal commands (e2e)', () => {
     // Granted again later: a new row, the old one stays as history.
     expect((await cli('grant-operator', '--email', email('opera'))).code).toBe(0);
     const grants = await admin.platformOperator.findMany({ where: { userId: user.id } });
-    expect(grants.map((g) => g.revokedAt === null).sort()).toEqual([false, true]);
+    expect(grants.filter((g) => g.revokedAt === null)).toHaveLength(1);
+    expect(grants).toHaveLength(2);
     const events = await admin.authEvent.findMany({
       where: { userId: user.id },
       orderBy: { at: 'asc' },

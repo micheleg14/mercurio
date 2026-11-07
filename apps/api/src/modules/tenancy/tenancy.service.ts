@@ -17,6 +17,13 @@ export interface CompanyInput {
   country?: string;
 }
 
+export interface NewTenantInput {
+  name: string;
+  slug: string;
+  modules: readonly string[];
+  company: CompanyInput;
+}
+
 /**
  * Public service of the tenancy module (B3): tenants, their companies and enabled modules.
  * Methods take the database client so a caller can combine several modules in one transaction.
@@ -25,17 +32,29 @@ export interface CompanyInput {
 export class TenancyService {
   constructor(private readonly repository: TenancyRepository) {}
 
-  /** A new tenant with its first company and the chosen modules (registry is always added). */
-  async createTenant(
-    db: DbClient,
-    input: { name: string; slug: string; modules: readonly string[]; company: CompanyInput },
-  ) {
-    const modules = applyModuleChange([], { enable: parseModuleKeys(input.modules) });
-    const company = this.normalizeCompany(input.company);
-    const tenant = await this.repository.createTenant(db, {
+  /**
+   * The data of a new tenant, checked and normalized, without writing anything: name, slug, first
+   * company and modules (registry always added, dependencies required). The terminal writes it
+   * with createTenant, the platform operator through the database (docs/adr/0038): same rules.
+   */
+  prepareTenant(input: NewTenantInput) {
+    return {
       name: normalizeName(input.name),
       slug: normalizeSlug(input.slug),
-    });
+      company: this.normalizeCompany(input.company),
+      modules: applyModuleChange([], { enable: parseModuleKeys(input.modules) }),
+    };
+  }
+
+  /** A tenant name as it is stored (the platform operator renames tenants). */
+  normalizeTenantName(name: string): string {
+    return normalizeName(name);
+  }
+
+  /** A new tenant with its first company and the chosen modules (registry is always added). */
+  async createTenant(db: DbClient, input: NewTenantInput) {
+    const { modules, company, ...names } = this.prepareTenant(input);
+    const tenant = await this.repository.createTenant(db, names);
     const created = await this.repository.createCompany(db, { tenantId: tenant.id, ...company });
     await this.repository.replaceModules(db, tenant.id, modules);
     return { tenant, company: created, modules };

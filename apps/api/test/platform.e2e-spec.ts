@@ -90,10 +90,7 @@ describe('platform area (e2e)', () => {
   it('gives an operator who is no member nothing of a tenant', async () => {
     for (const url of ['/parties', '/stock', '/orders', '/invoices', '/members', '/audit-events']) {
       const res = await get(token.operator, url).set('X-Company-Id', world.companies.a);
-      // Refused before any data is read: 401 from the module guard on module routes (it runs
-      // first and needs a tenant), 403 TENANT_NOT_SELECTED from the permission guard otherwise.
-      expect([401, 403]).toContain(res.status);
-      expect(res.body.items).toBeUndefined();
+      expect([url, res.status, res.body.code]).toEqual([url, 403, 'TENANT_NOT_SELECTED']);
     }
     const choose = await http()
       .post('/api/auth/tenant')

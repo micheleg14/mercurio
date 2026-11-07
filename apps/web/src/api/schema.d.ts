@@ -411,6 +411,144 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/platform/tenants": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Tenants, with what configuring them needs (search on name or slug) */
+        get: operations["PlatformController_list"];
+        put?: never;
+        /** Create a tenant with its first company, modules and administrator */
+        post: operations["PlatformController_create"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/platform/tenants/{id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** A tenant: data, companies, modules, administrators */
+        get: operations["PlatformController_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        /** Rename the tenant (the slug never changes) */
+        patch: operations["PlatformController_rename"];
+        trace?: never;
+    };
+    "/platform/tenants/{id}/events": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** What platform operators did on the tenant, newest first */
+        get: operations["PlatformController_events"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/platform/tenants/{id}/modules": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        /** Set the modules of the tenant, respecting their dependencies */
+        put: operations["PlatformController_setModules"];
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/platform/tenants/{id}/suspend": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Suspend the tenant: its people cannot work until it is reactivated */
+        post: operations["PlatformController_suspend"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/platform/tenants/{id}/reactivate": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Reactivate a suspended tenant */
+        post: operations["PlatformController_reactivate"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/platform/tenants/{id}/admins": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Add an administrator to the tenant */
+        post: operations["PlatformController_addAdmin"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/platform/tenants/{id}/admins/{userId}/activation-code": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** A new activation code for an administrator not yet activated */
+        post: operations["PlatformController_issueAdminCode"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/parties": {
         parameters: {
             query?: never;
@@ -1844,6 +1982,170 @@ export interface components {
             requiredBy: string[];
             /** @description Always enabled: it cannot be switched off */
             alwaysOn: boolean;
+        };
+        PlatformTenantSummaryDto: {
+            id: string;
+            /** @example Gruppo Rossi */
+            name: string;
+            /** @example rossi */
+            slug: string;
+            /** @enum {string} */
+            status: "ACTIVE" | "SUSPENDED";
+            /**
+             * @example [
+             *       "registry",
+             *       "warehouse"
+             *     ]
+             */
+            modules: string[];
+            /** @description Number of companies */
+            companies: number;
+            /** @description Number of people with an active membership */
+            people: number;
+            createdAt: string;
+        };
+        PlatformTenantPageDto: {
+            items: components["schemas"]["PlatformTenantSummaryDto"][];
+            total: number;
+            page: number;
+            pageSize: number;
+        };
+        NewCompanyDto: {
+            /** @example Verdi Srl */
+            legalName: string;
+            /** @example 01234567897 */
+            vatNumber: string;
+            taxCode?: string;
+            /**
+             * @default IT
+             * @example IT
+             */
+            country: string;
+        };
+        NewAdminDto: {
+            /** @example laura.verdi@example.com */
+            email: string;
+            /**
+             * @description Ignored when the person already has an account
+             * @example Laura Verdi
+             */
+            name: string;
+        };
+        CreateTenantDto: {
+            /** @example Gruppo Verdi */
+            name: string;
+            /**
+             * @description Lowercase letters, digits and dashes; never changes
+             * @example verdi
+             */
+            slug: string;
+            /**
+             * @example [
+             *       "registry",
+             *       "warehouse"
+             *     ]
+             */
+            modules: string[];
+            company: components["schemas"]["NewCompanyDto"];
+            admin: components["schemas"]["NewAdminDto"];
+        };
+        PlatformCompanyDto: {
+            id: string;
+            legalName: string;
+            vatNumber: string;
+            /** @example IT */
+            country: string;
+        };
+        PlatformAdminDto: {
+            membershipId: string;
+            userId: string;
+            name: string;
+            email: string;
+            /** @description False while the person has not activated the account */
+            activated: boolean;
+            /** @description A new activation code can be issued: never activated and in no other tenant (docs/adr/0037) */
+            canIssueCode: boolean;
+            /** @description Last use of this tenant */
+            lastSeenAt: string | null;
+        };
+        PlatformTenantDto: {
+            id: string;
+            name: string;
+            /** @description Never changes */
+            slug: string;
+            /** @enum {string} */
+            status: "ACTIVE" | "SUSPENDED";
+            /** @description Why it was last suspended or reactivated */
+            statusReason: string | null;
+            statusChangedAt: string | null;
+            /** @description Sent back with every change (B29) */
+            version: number;
+            createdAt: string;
+            modules: string[];
+            companies: components["schemas"]["PlatformCompanyDto"][];
+            admins: components["schemas"]["PlatformAdminDto"][];
+            /** @description People working in the tenant besides the administrators */
+            otherPeople: number;
+        };
+        PlatformActivationCodeDto: {
+            /** @description Shown once: only its hash is stored */
+            code: string;
+            expiresAt: string;
+        };
+        CreatedTenantDto: {
+            tenant: components["schemas"]["PlatformTenantDto"];
+            activation: components["schemas"]["PlatformActivationCodeDto"] | null;
+            /** @description The administrator already had a Mercurio account */
+            existingAccount: boolean;
+        };
+        PlatformEventDto: {
+            id: string;
+            /** @example MODULES_CHANGED */
+            type: string;
+            /** @description The operator who acted */
+            actorName: string | null;
+            subjectType: string | null;
+            subjectId: string | null;
+            details: Record<string, never> | null;
+            at: string;
+        };
+        PlatformEventPageDto: {
+            items: components["schemas"]["PlatformEventDto"][];
+            total: number;
+            page: number;
+            pageSize: number;
+        };
+        RenameTenantDto: {
+            version: number;
+            name: string;
+        };
+        SetModulesDto: {
+            version: number;
+            /** @description Every module the tenant must have afterwards */
+            modules: string[];
+        };
+        StatusChangeDto: {
+            version: number;
+            /** @description Why: kept in the audit log of the tenant */
+            reason: string;
+        };
+        AddAdminDto: {
+            /** @example laura.verdi@example.com */
+            email: string;
+            /**
+             * @description Ignored when the person already has an account
+             * @example Laura Verdi
+             */
+            name: string;
+            /** @description Confirms making ADMIN a person who is already a member with another role (409 ADMIN_PROMOTION_REQUIRED otherwise) */
+            promote?: boolean;
+        };
+        AddedAdminDto: {
+            tenant: components["schemas"]["PlatformTenantDto"];
+            activation: components["schemas"]["PlatformActivationCodeDto"] | null;
+            existingAccount: boolean;
+            /** @description An existing member became ADMIN */
+            promoted: boolean;
         };
         /** @enum {string} */
         PartyKind: "PRIVATE" | "SOLE_TRADER" | "COMPANY" | "ORGANIZATION";
@@ -3919,6 +4221,250 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["PlatformModuleDto"][];
+                };
+            };
+        };
+    };
+    PlatformController_list: {
+        parameters: {
+            query?: {
+                page?: number;
+                pageSize?: number;
+                sort?: string;
+                /** @description Text to search for */
+                q?: string;
+                status?: "ACTIVE" | "SUSPENDED";
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PlatformTenantPageDto"];
+                };
+            };
+        };
+    };
+    PlatformController_create: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["CreateTenantDto"];
+            };
+        };
+        responses: {
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["CreatedTenantDto"];
+                };
+            };
+        };
+    };
+    PlatformController_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PlatformTenantDto"];
+                };
+            };
+        };
+    };
+    PlatformController_rename: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["RenameTenantDto"];
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PlatformTenantDto"];
+                };
+            };
+        };
+    };
+    PlatformController_events: {
+        parameters: {
+            query?: {
+                page?: number;
+                pageSize?: number;
+                sort?: string;
+                /** @description Text to search for */
+                q?: string;
+            };
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PlatformEventPageDto"];
+                };
+            };
+        };
+    };
+    PlatformController_setModules: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["SetModulesDto"];
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PlatformTenantDto"];
+                };
+            };
+        };
+    };
+    PlatformController_suspend: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["StatusChangeDto"];
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PlatformTenantDto"];
+                };
+            };
+        };
+    };
+    PlatformController_reactivate: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["StatusChangeDto"];
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PlatformTenantDto"];
+                };
+            };
+        };
+    };
+    PlatformController_addAdmin: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["AddAdminDto"];
+            };
+        };
+        responses: {
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AddedAdminDto"];
+                };
+            };
+        };
+    };
+    PlatformController_issueAdminCode: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+                userId: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PlatformActivationCodeDto"];
                 };
             };
         };
