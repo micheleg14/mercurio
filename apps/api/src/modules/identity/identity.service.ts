@@ -267,6 +267,14 @@ export class IdentityService {
     return this.repository.findUserById(db, userId);
   }
 
+  /**
+   * Whether the person of the database context is a platform operator (docs/adr/0038). Read on
+   * every request to a platform route: a revocation takes effect at once.
+   */
+  isPlatformOperator(db: DbClient): Promise<boolean> {
+    return this.repository.isPlatformOperator(db);
+  }
+
   /** Tenants where the person is an active member, with their role there. */
   async listActiveMemberships(db: DbClient, userId: string) {
     const memberships = await this.repository.listActiveMemberships(db, userId);

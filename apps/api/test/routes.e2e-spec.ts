@@ -4,7 +4,7 @@ import { ModulesContainer, Reflector } from '@nestjs/core';
 import type { NestExpressApplication } from '@nestjs/platform-express';
 import request from 'supertest';
 import { AuthService } from '../src/modules/auth/index.js';
-import { IS_PUBLIC } from '../src/modules/auth/decorators.js';
+import { IS_PUBLIC, REQUIRES_PLATFORM_OPERATOR } from '../src/modules/auth/decorators.js';
 import { TokenService } from '../src/modules/auth/tokens.js';
 import { createTestApp } from './support/auth.js';
 
@@ -34,7 +34,7 @@ describe('route inventory (e2e)', () => {
 
   function routes() {
     const reflector = app.get(Reflector);
-    const found: { route: string; isPublic: boolean }[] = [];
+    const found: { route: string; isPublic: boolean; platform: boolean }[] = [];
     const controllers = [...app.get(ModulesContainer).values()].flatMap((module) => [
       ...module.controllers.values(),
     ]);
@@ -50,6 +50,9 @@ describe('route inventory (e2e)', () => {
         found.push({
           route: `${RequestMethod[method]} ${[base, path].filter((p) => p && p !== '/').join('/')}`,
           isPublic: Boolean(reflector.getAllAndOverride(IS_PUBLIC, [handler, type])),
+          platform: Boolean(
+            reflector.getAllAndOverride(REQUIRES_PLATFORM_OPERATOR, [handler, type]),
+          ),
         });
       }
     }
@@ -63,6 +66,18 @@ describe('route inventory (e2e)', () => {
       .sort();
 
     expect(open).toEqual([...EXPECTED_PUBLIC].sort());
+  });
+
+  // The platform area is visible from the path (docs/adr/0038): every route under platform/ is for
+  // operators only, and the decorator never leaks to a tenant route.
+  it('closes every platform route to anyone but an operator, and no other route', () => {
+    const all = routes();
+    const underPlatform = (route: string) => route.split(' ')[1]!.startsWith('platform');
+    const platform = all.filter((r) => underPlatform(r.route));
+
+    expect(platform.map((r) => r.route)).toContain('GET platform/modules');
+    expect(platform.filter((r) => !r.platform || r.isPublic)).toEqual([]);
+    expect(all.filter((r) => r.platform && !underPlatform(r.route))).toEqual([]);
   });
 
   it('finds the protected routes too (the scan itself works)', () => {

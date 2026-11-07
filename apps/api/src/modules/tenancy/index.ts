@@ -1,5 +1,11 @@
 // Public surface of the tenancy module: other modules import from here only (B3).
-export { MODULE_KEYS, type ModuleKey, parseModuleKeys } from './module-catalog.js';
+export {
+  applyModuleChange,
+  MODULE_CATALOG,
+  MODULE_KEYS,
+  type ModuleKey,
+  parseModuleKeys,
+} from './module-catalog.js';
 export {
   type CompanyProfileData,
   type CompanyProfileInput,

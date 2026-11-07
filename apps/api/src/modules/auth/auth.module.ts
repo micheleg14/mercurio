@@ -8,7 +8,7 @@ import { AuthController } from './auth.controller.js';
 import { AuthenticationMiddleware } from './auth.middleware.js';
 import { AuthRepository } from './auth.repository.js';
 import { AuthService } from './auth.service.js';
-import { AuthGuard, CompanyGuard, PermissionGuard } from './guards.js';
+import { AuthGuard, CompanyGuard, PermissionGuard, PlatformOperatorGuard } from './guards.js';
 import { TokenService } from './tokens.js';
 
 /**
@@ -24,10 +24,12 @@ import { TokenService } from './tokens.js';
     AuthService,
     AuthenticationMiddleware,
     TokenService,
-    // Global guards, in the order they must run: signed in, then allowed, then company.
+    // Global guards, in the order they must run: signed in, then allowed, then company, then the
+    // platform area (which needs no tenant).
     { provide: APP_GUARD, useClass: AuthGuard },
     { provide: APP_GUARD, useClass: PermissionGuard },
     { provide: APP_GUARD, useClass: CompanyGuard },
+    { provide: APP_GUARD, useClass: PlatformOperatorGuard },
   ],
   exports: [AuthContextService, AuthService],
 })

@@ -266,13 +266,15 @@ export class AuthService {
 
   /**
    * Opens a session for a person who has just proved who they are. With exactly one usable
-   * tenant it is chosen for them; with several, they choose next (selectTenant).
+   * tenant it is chosen for them; with several, they choose next (selectTenant). Without any, only
+   * a platform operator gets a session (docs/adr/0038).
    */
   private async startSession(userId: string, meta: RequestMeta): Promise<StartedSession> {
     const refresh = newOpaqueToken();
     const prepared = await this.userDb.runAs(userId, async (tx) => {
       const tenants = await this.usableTenants(tx, userId);
-      if (tenants.length === 0) return null;
+      // Nobody signs in to nothing, except a platform operator: their area needs no tenant.
+      if (tenants.length === 0 && !(await this.identity.isPlatformOperator(tx))) return null;
       const only = tenants.length === 1 ? tenants[0]! : undefined;
       const session = await this.repository.createSession(tx, {
         userId,
@@ -461,6 +463,7 @@ export class AuthService {
       const tenant = ctx.tenantId ? await this.tenancy.findTenant(tx, ctx.tenantId) : null;
       const modules = ctx.tenantId ? await this.tenancy.enabledModules(tx, ctx.tenantId) : [];
       const companies = ctx.tenantId ? await this.tenancy.listCompanies(tx, ctx.tenantId) : [];
+      const platformOperator = await this.identity.isPlatformOperator(tx);
       return {
         user: { id: ctx.userId, email: user?.email ?? '', name: user?.name ?? '' },
         tenant: tenant ? { id: tenant.id, name: tenant.name, slug: tenant.slug } : null,
@@ -471,6 +474,7 @@ export class AuthService {
           .filter((c) => ctx.accessibleCompanyIds.includes(c.id))
           .map((c) => ({ id: c.id, legalName: c.legalName, vatNumber: c.vatNumber })),
         tenants,
+        platformOperator,
       };
     });
   }

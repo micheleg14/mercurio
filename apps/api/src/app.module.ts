@@ -12,6 +12,7 @@ import { IdentityModule } from './modules/identity/index.js';
 import { InvoicingModule } from './modules/invoicing/index.js';
 import { MembersModule } from './modules/members/index.js';
 import { OrdersModule } from './modules/orders/index.js';
+import { PlatformModule } from './modules/platform/index.js';
 import { RegistryModule } from './modules/registry/index.js';
 import { TenancyModule } from './modules/tenancy/index.js';
 import { WarehouseModule } from './modules/warehouse/index.js';
@@ -62,6 +63,7 @@ import { WebModule } from './web/web.module.js';
     AuditModule,
     AuthModule,
     MembersModule,
+    PlatformModule,
     RegistryModule,
     WarehouseModule,
     OrdersModule,
