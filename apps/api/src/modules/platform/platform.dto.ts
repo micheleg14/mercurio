@@ -7,6 +7,7 @@ import {
   IsEmail,
   IsIn,
   IsInt,
+  IsNotEmpty,
   IsOptional,
   IsString,
   MaxLength,
@@ -215,4 +216,136 @@ export class AddedAdminDto {
   activation!: PlatformActivationCodeDto | null;
   @ApiProperty() existingAccount!: boolean;
   @ApiProperty({ description: 'An existing member became ADMIN' }) promoted!: boolean;
+}
+
+// --- Phase 8b: companies, recovery, operators (docs/adr/0039) -------------------------------
+
+/** The operator's one-time code, asked again for the actions that cannot be undone. */
+export class StepUpDto {
+  @ApiProperty({
+    example: '123456',
+    description:
+      "A fresh code of the operator's authenticator (403 INVALID_TOTP_CODE when wrong or already used)",
+  })
+  @IsOptional()
+  @IsString()
+  @MaxLength(12)
+  totpCode?: string;
+}
+
+export class LookupPersonDto {
+  @ApiProperty({ example: 'laura.verdi@example.com', description: 'The exact email' })
+  @IsString()
+  @IsNotEmpty()
+  @MaxLength(254)
+  email!: string;
+}
+
+const RECOVERY_BLOCKS = [
+  'SELF',
+  'IS_OPERATOR',
+  'NOT_ACTIVATED',
+  'NO_MEMBERSHIP',
+  'DISABLED',
+] as const;
+
+export class PlatformPersonMembershipDto {
+  @ApiProperty() tenantId!: string;
+  @ApiProperty() tenantName!: string;
+  @ApiProperty() slug!: string;
+  @ApiProperty({ enum: STATUSES }) tenantStatus!: (typeof STATUSES)[number];
+  @ApiProperty({
+    type: String,
+    nullable: true,
+    example: 'ADMIN',
+    description: 'A built-in role, or null for a role of the tenant',
+  })
+  role!: string | null;
+  @ApiProperty({ type: String, nullable: true, description: 'The name of a role of the tenant' })
+  customRole!: string | null;
+}
+
+export class PlatformPersonDto {
+  @ApiProperty() userId!: string;
+  @ApiProperty() name!: string;
+  @ApiProperty() email!: string;
+  @ApiProperty({ enum: ['ACTIVE', 'DISABLED'] }) status!: 'ACTIVE' | 'DISABLED';
+  @ApiProperty({ description: 'False while the person has not activated the account' })
+  activated!: boolean;
+  @ApiProperty({ description: 'An active platform operator' }) operator!: boolean;
+  @ApiProperty({ description: 'The operator asking' }) self!: boolean;
+  @ApiProperty({ type: String, nullable: true, description: 'Last use of any session' })
+  lastSeenAt!: string | null;
+  @ApiProperty({ type: [PlatformPersonMembershipDto] })
+  memberships!: PlatformPersonMembershipDto[];
+  @ApiProperty({
+    enum: RECOVERY_BLOCKS,
+    nullable: true,
+    description: 'Why a recovery code cannot be issued from the browser; null when it can',
+  })
+  recoveryBlocked!: (typeof RECOVERY_BLOCKS)[number] | null;
+}
+
+export class RecoveryCodeRequestDto extends StepUpDto {
+  @ApiProperty({ description: 'Why: read by the person in their account, never by the tenants' })
+  @IsString()
+  @MaxLength(500)
+  reason!: string;
+}
+
+export class PlatformOperatorDto {
+  @ApiProperty() grantId!: string;
+  @ApiProperty() userId!: string;
+  @ApiProperty() name!: string;
+  @ApiProperty() email!: string;
+  @ApiProperty() activated!: boolean;
+  @ApiProperty({ description: 'A new activation code can be issued from the browser' })
+  canIssueCode!: boolean;
+  @ApiProperty({ description: 'The operator asking' }) self!: boolean;
+  @ApiProperty({ type: String, nullable: true }) lastSeenAt!: string | null;
+  @ApiProperty() grantedAt!: string;
+  @ApiProperty({
+    type: String,
+    nullable: true,
+    description: 'Empty when granted from the terminal',
+  })
+  grantedByName!: string | null;
+  @ApiProperty({ type: String, nullable: true }) revokedAt!: string | null;
+  @ApiProperty({ type: String, nullable: true }) revokedByName!: string | null;
+  @ApiProperty({ type: String, nullable: true }) revokeReason!: string | null;
+}
+
+export class GrantOperatorDto extends StepUpDto {
+  @ApiProperty({ example: 'giulia.neri@example.com' }) @IsEmail() @MaxLength(254) email!: string;
+  @ApiPropertyOptional({ description: 'Needed only when the email has no identity yet' })
+  @IsOptional()
+  @IsString()
+  @MaxLength(200)
+  name?: string;
+  @ApiPropertyOptional({
+    description:
+      'Confirms granting the role to a person who works for tenants (409 OPERATOR_EXISTING_MEMBER otherwise)',
+  })
+  @IsOptional()
+  @IsBoolean()
+  confirmExisting?: boolean;
+}
+
+export class GrantedOperatorDto {
+  @ApiProperty() userId!: string;
+  @ApiProperty({ type: PlatformActivationCodeDto, nullable: true })
+  activation!: PlatformActivationCodeDto | null;
+  @ApiProperty({ description: 'The person already had a Mercurio account' })
+  existingAccount!: boolean;
+}
+
+export class RevokeOperatorDto extends StepUpDto {
+  @ApiProperty({ description: 'Why: kept with the grant' })
+  @IsString()
+  @MaxLength(500)
+  reason!: string;
+  @ApiPropertyOptional({ description: 'Sign the person out everywhere too', default: false })
+  @IsOptional()
+  @IsBoolean()
+  closeSessions?: boolean;
 }

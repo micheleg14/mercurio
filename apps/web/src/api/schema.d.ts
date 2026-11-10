@@ -549,6 +549,109 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/platform/tenants/{id}/companies": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Add a further company to the tenant */
+        post: operations["PlatformController_addCompany"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/platform/people/lookup": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** The person with exactly this email (never a list) */
+        post: operations["PlatformController_lookupPerson"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/platform/people/{userId}/recovery-code": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** A recovery code for an activated account; asks for a fresh one-time code */
+        post: operations["PlatformController_issueRecoveryCode"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/platform/operators": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Platform operators, current and revoked */
+        get: operations["PlatformController_listOperators"];
+        put?: never;
+        /** Make a person a platform operator; asks for a fresh one-time code */
+        post: operations["PlatformController_grantOperator"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/platform/operators/{userId}/revoke": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Revoke another operator; asks for a fresh one-time code */
+        post: operations["PlatformController_revokeOperator"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/platform/operators/{userId}/activation-code": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** A new activation code for an operator not yet activated */
+        post: operations["PlatformController_issueOperatorCode"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/parties": {
         parameters: {
             query?: never;
@@ -1829,6 +1932,8 @@ export interface components {
             type: string;
             ip?: string | null;
             userAgent?: string | null;
+            /** @description Why the platform operator acted (recovery, revoked grant) */
+            reason: string | null;
         };
         AuthEventPageDto: {
             items: components["schemas"]["AuthEventDto"][];
@@ -2152,6 +2257,108 @@ export interface components {
             existingAccount: boolean;
             /** @description An existing member became ADMIN */
             promoted: boolean;
+        };
+        LookupPersonDto: {
+            /**
+             * @description The exact email
+             * @example laura.verdi@example.com
+             */
+            email: string;
+        };
+        PlatformPersonMembershipDto: {
+            tenantId: string;
+            tenantName: string;
+            slug: string;
+            /** @enum {string} */
+            tenantStatus: "ACTIVE" | "SUSPENDED";
+            /**
+             * @description A built-in role, or null for a role of the tenant
+             * @example ADMIN
+             */
+            role: string | null;
+            /** @description The name of a role of the tenant */
+            customRole: string | null;
+        };
+        PlatformPersonDto: {
+            userId: string;
+            name: string;
+            email: string;
+            /** @enum {string} */
+            status: "ACTIVE" | "DISABLED";
+            /** @description False while the person has not activated the account */
+            activated: boolean;
+            /** @description An active platform operator */
+            operator: boolean;
+            /** @description The operator asking */
+            self: boolean;
+            /** @description Last use of any session */
+            lastSeenAt: string | null;
+            memberships: components["schemas"]["PlatformPersonMembershipDto"][];
+            /**
+             * @description Why a recovery code cannot be issued from the browser; null when it can
+             * @enum {string|null}
+             */
+            recoveryBlocked: "SELF" | "IS_OPERATOR" | "NOT_ACTIVATED" | "NO_MEMBERSHIP" | "DISABLED" | null;
+        };
+        RecoveryCodeRequestDto: {
+            /**
+             * @description A fresh code of the operator's authenticator (403 INVALID_TOTP_CODE when wrong or already used)
+             * @example 123456
+             */
+            totpCode: string;
+            /** @description Why: read by the person in their account, never by the tenants */
+            reason: string;
+        };
+        PlatformOperatorDto: {
+            grantId: string;
+            userId: string;
+            name: string;
+            email: string;
+            activated: boolean;
+            /** @description A new activation code can be issued from the browser */
+            canIssueCode: boolean;
+            /** @description The operator asking */
+            self: boolean;
+            lastSeenAt: string | null;
+            grantedAt: string;
+            /** @description Empty when granted from the terminal */
+            grantedByName: string | null;
+            revokedAt: string | null;
+            revokedByName: string | null;
+            revokeReason: string | null;
+        };
+        GrantOperatorDto: {
+            /**
+             * @description A fresh code of the operator's authenticator (403 INVALID_TOTP_CODE when wrong or already used)
+             * @example 123456
+             */
+            totpCode: string;
+            /** @example giulia.neri@example.com */
+            email: string;
+            /** @description Needed only when the email has no identity yet */
+            name?: string;
+            /** @description Confirms granting the role to a person who works for tenants (409 OPERATOR_EXISTING_MEMBER otherwise) */
+            confirmExisting?: boolean;
+        };
+        GrantedOperatorDto: {
+            userId: string;
+            activation: components["schemas"]["PlatformActivationCodeDto"] | null;
+            /** @description The person already had a Mercurio account */
+            existingAccount: boolean;
+        };
+        RevokeOperatorDto: {
+            /**
+             * @description A fresh code of the operator's authenticator (403 INVALID_TOTP_CODE when wrong or already used)
+             * @example 123456
+             */
+            totpCode: string;
+            /** @description Why: kept with the grant */
+            reason: string;
+            /**
+             * @description Sign the person out everywhere too
+             * @default false
+             */
+            closeSessions: boolean;
         };
         /** @enum {string} */
         PartyKind: "PRIVATE" | "SOLE_TRADER" | "COMPANY" | "ORGANIZATION";
@@ -3640,7 +3847,7 @@ export interface operations {
                 sort?: string;
                 /** @description Text to search for */
                 q?: string;
-                type?: "TENANT_SELECTED" | "TENANT_CREATED" | "TENANT_RENAMED" | "TENANT_SUSPENDED" | "TENANT_REACTIVATED" | "MEMBER_ADDED" | "MEMBER_UPDATED" | "MEMBER_REMOVED" | "ACTIVATION_CODE_ISSUED" | "ROLE_CREATED" | "ROLE_UPDATED" | "ROLE_ARCHIVED" | "MODULES_CHANGED" | "COMPANY_ADDED" | "COMPANY_UPDATED" | "PARTY_CREATED" | "PARTY_UPDATED" | "PARTY_ARCHIVED" | "PARTY_RESTORED" | "ITEM_CREATED" | "ITEM_UPDATED" | "ITEM_ARCHIVED" | "ITEM_RESTORED" | "WAREHOUSE_CREATED" | "WAREHOUSE_UPDATED" | "WAREHOUSE_ARCHIVED" | "WAREHOUSE_RESTORED" | "STOCK_DOCUMENT_POSTED" | "STOCK_DOCUMENT_REVERSED" | "REORDER_LEVEL_SET" | "REORDER_LEVEL_REMOVED" | "ORDER_CREATED" | "ORDER_UPDATED" | "ORDER_DELETED" | "ORDER_CONFIRMED" | "ORDER_RESERVED" | "ORDER_CLOSED" | "ORDER_CANCELLED" | "ORDER_FULFILLED" | "ORDER_FULFILMENT_REVERSED" | "INVOICE_DRAFT_CREATED" | "INVOICE_DRAFT_UPDATED" | "INVOICE_DRAFT_DELETED" | "INVOICE_ISSUED" | "CREDIT_NOTE_ISSUED" | "PAYMENT_RECORDED" | "PAYMENT_REVERSED";
+                type?: "TENANT_SELECTED" | "TENANT_CREATED" | "TENANT_RENAMED" | "TENANT_SUSPENDED" | "TENANT_REACTIVATED" | "MEMBER_ADDED" | "MEMBER_UPDATED" | "MEMBER_REMOVED" | "ACTIVATION_CODE_ISSUED" | "MEMBER_RECOVERY_ISSUED" | "ROLE_CREATED" | "ROLE_UPDATED" | "ROLE_ARCHIVED" | "MODULES_CHANGED" | "COMPANY_ADDED" | "COMPANY_UPDATED" | "PARTY_CREATED" | "PARTY_UPDATED" | "PARTY_ARCHIVED" | "PARTY_RESTORED" | "ITEM_CREATED" | "ITEM_UPDATED" | "ITEM_ARCHIVED" | "ITEM_RESTORED" | "WAREHOUSE_CREATED" | "WAREHOUSE_UPDATED" | "WAREHOUSE_ARCHIVED" | "WAREHOUSE_RESTORED" | "STOCK_DOCUMENT_POSTED" | "STOCK_DOCUMENT_REVERSED" | "REORDER_LEVEL_SET" | "REORDER_LEVEL_REMOVED" | "ORDER_CREATED" | "ORDER_UPDATED" | "ORDER_DELETED" | "ORDER_CONFIRMED" | "ORDER_RESERVED" | "ORDER_CLOSED" | "ORDER_CANCELLED" | "ORDER_FULFILLED" | "ORDER_FULFILMENT_REVERSED" | "INVOICE_DRAFT_CREATED" | "INVOICE_DRAFT_UPDATED" | "INVOICE_DRAFT_DELETED" | "INVOICE_ISSUED" | "CREDIT_NOTE_ISSUED" | "PAYMENT_RECORDED" | "PAYMENT_REVERSED";
                 /** @description From this instant (ISO 8601), inclusive */
                 from?: string;
                 /** @description Until this instant (ISO 8601), exclusive */
@@ -4459,6 +4666,165 @@ export interface operations {
             header?: never;
             path: {
                 id: string;
+                userId: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PlatformActivationCodeDto"];
+                };
+            };
+        };
+    };
+    PlatformController_addCompany: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["NewCompanyDto"];
+            };
+        };
+        responses: {
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PlatformTenantDto"];
+                };
+            };
+        };
+    };
+    PlatformController_lookupPerson: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["LookupPersonDto"];
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PlatformPersonDto"];
+                };
+            };
+        };
+    };
+    PlatformController_issueRecoveryCode: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                userId: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["RecoveryCodeRequestDto"];
+            };
+        };
+        responses: {
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PlatformActivationCodeDto"];
+                };
+            };
+        };
+    };
+    PlatformController_listOperators: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PlatformOperatorDto"][];
+                };
+            };
+        };
+    };
+    PlatformController_grantOperator: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["GrantOperatorDto"];
+            };
+        };
+        responses: {
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["GrantedOperatorDto"];
+                };
+            };
+        };
+    };
+    PlatformController_revokeOperator: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                userId: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["RevokeOperatorDto"];
+            };
+        };
+        responses: {
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    PlatformController_issueOperatorCode: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
                 userId: string;
             };
             cookie?: never;

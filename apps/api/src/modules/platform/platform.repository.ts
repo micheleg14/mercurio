@@ -51,6 +51,42 @@ export interface PlatformEventRow {
 
 type Versioned = { outcome: string; version: number | null };
 
+/** A person as app_platform_find_person returns it (JSON: dates as text). */
+export interface PlatformPersonRow {
+  userId: string;
+  name: string;
+  email: string;
+  status: 'ACTIVE' | 'DISABLED';
+  activated: boolean;
+  operator: boolean;
+  lastSeenAt: string | null;
+  memberships: {
+    tenantId: string;
+    tenantName: string;
+    slug: string;
+    tenantStatus: TenantStatus;
+    role: string | null;
+    customRole: string | null;
+  }[];
+}
+
+export interface PlatformOperatorRow {
+  grant_id: string;
+  user_id: string;
+  name: string;
+  email: string;
+  activated: boolean;
+  other_tenants: boolean;
+  last_seen_at: Date | null;
+  granted_at: Date;
+  granted_by_name: string | null;
+  revoked_at: Date | null;
+  revoked_by_name: string | null;
+  revoke_reason: string | null;
+}
+
+type Code = { hash: string; expiresAt: Date };
+
 /**
  * The platform module's only way to the data (docs/adr/0038): every method calls one
  * app_platform_* function, which checks the operator and touches only what it must. No query here
@@ -160,6 +196,79 @@ export class PlatformRepository {
       { outcome: 'OK' | 'NOT_ADMIN' | 'ALREADY_ACTIVATED' | 'OTHER_TENANTS' }[]
     >`SELECT app_platform_issue_admin_code(
         ${id}::uuid, ${userId}::uuid, ${code.hash}, ${code.expiresAt}::timestamptz) AS outcome`;
+    return row!.outcome;
+  }
+
+  // --- Phase 8b (docs/adr/0039) ----------------------------------------------------------------
+
+  async addCompany(
+    db: DbClient,
+    tenantId: string,
+    company: { legalName: string; vatNumber: string; taxCode: string | null; country: string },
+  ) {
+    const [row] = await db.$queryRaw<
+      { outcome: 'OK' | 'NOT_FOUND' | 'VAT_EXISTS'; company_id: string | null }[]
+    >`SELECT * FROM app_platform_add_company(${tenantId}::uuid, ${company.legalName},
+        ${company.vatNumber}, ${company.taxCode}, ${company.country})`;
+    return row!;
+  }
+
+  async findPerson(db: DbClient, email: string): Promise<PlatformPersonRow | null> {
+    const [row] = await db.$queryRaw<{ person: PlatformPersonRow | null }[]>`
+      SELECT app_platform_find_person(${email}) AS person`;
+    return row?.person ?? null;
+  }
+
+  async issueRecoveryCode(db: DbClient, userId: string, reason: string, code: Code) {
+    const [row] = await db.$queryRaw<
+      {
+        outcome:
+          | 'OK'
+          | 'NOT_FOUND'
+          | 'REASON_REQUIRED'
+          | 'SELF'
+          | 'IS_OPERATOR'
+          | 'NOT_ACTIVATED'
+          | 'NO_MEMBERSHIP';
+      }[]
+    >`SELECT app_platform_issue_recovery_code(${userId}::uuid, ${reason}, ${code.hash},
+        ${code.expiresAt}::timestamptz) AS outcome`;
+    return row!.outcome;
+  }
+
+  listOperators(db: DbClient) {
+    return db.$queryRaw<PlatformOperatorRow[]>`SELECT * FROM app_platform_list_operators()`;
+  }
+
+  async grantOperator(
+    db: DbClient,
+    data: { email: string; name: string | null; confirm: boolean; code: Code },
+  ) {
+    const [row] = await db.$queryRaw<
+      {
+        outcome:
+          'GRANTED' | 'NAME_REQUIRED' | 'USER_DISABLED' | 'ALREADY_OPERATOR' | 'NEEDS_CONFIRMATION';
+        user_id: string | null;
+        identity_created: boolean;
+        tenants: { name: string; slug: string }[] | null;
+      }[]
+    >`SELECT * FROM app_platform_grant_operator(${data.email}, ${data.name}, ${data.confirm},
+        ${data.code.hash}, ${data.code.expiresAt}::timestamptz)`;
+    return row!;
+  }
+
+  async revokeOperator(db: DbClient, userId: string, reason: string, closeSessions: boolean) {
+    const [row] = await db.$queryRaw<
+      { outcome: 'OK' | 'REASON_REQUIRED' | 'SELF' | 'NOT_OPERATOR' | 'LAST_OPERATOR' }[]
+    >`SELECT app_platform_revoke_operator(${userId}::uuid, ${reason}, ${closeSessions}) AS outcome`;
+    return row!.outcome;
+  }
+
+  async issueOperatorCode(db: DbClient, userId: string, code: Code) {
+    const [row] = await db.$queryRaw<
+      { outcome: 'OK' | 'NOT_OPERATOR' | 'ALREADY_ACTIVATED' | 'OTHER_TENANTS' }[]
+    >`SELECT app_platform_issue_operator_code(${userId}::uuid, ${code.hash},
+        ${code.expiresAt}::timestamptz) AS outcome`;
     return row!.outcome;
   }
 }

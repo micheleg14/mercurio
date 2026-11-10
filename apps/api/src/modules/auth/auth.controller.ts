@@ -31,14 +31,10 @@ import {
   SessionDto,
   VerifyMfaDto,
 } from './auth.dto.js';
-import { AuthService, type RequestMeta } from './auth.service.js';
+import { AuthService } from './auth.service.js';
 import { Public, StrictRateLimit } from './decorators.js';
 import { clearRefreshCookie, readRefreshCookie, setRefreshCookie } from './refresh-cookie.js';
-
-const meta = (req: Request): RequestMeta => ({
-  ip: req.ip ?? null,
-  userAgent: req.headers['user-agent'] ?? null,
-});
+import { requestMeta as meta } from './request-meta.js';
 
 @ApiTags('auth')
 @Controller('auth')

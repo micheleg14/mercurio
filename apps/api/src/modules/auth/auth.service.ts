@@ -18,6 +18,7 @@ import {
 } from './passwords.js';
 import { hashRecoveryCode, isTotpFormat, newRecoveryCodes } from './recovery-codes.js';
 import { decryptSecret, encryptSecret } from './secret-box.js';
+import { checkStepUp, type StepUpAction } from './step-up.js';
 import { TokenService } from './tokens.js';
 import { newTotpSecret, totpUri, verifyTotp } from './totp.js';
 
@@ -456,6 +457,35 @@ export class AuthService {
     return result;
   }
 
+  /**
+   * Asks again for a one-time code before an action that cannot be undone (docs/adr/0039), in the
+   * caller's transaction, which must run in the context of the person. A right code is used up
+   * with the transaction: when the action is then refused, the rollback gives it back. A wrong
+   * one is counted like a failed sign-in, so the caller must commit before refusing: it returns
+   * the outcome instead of throwing.
+   */
+  async verifyStepUp(
+    tx: DbClient,
+    userId: string,
+    code: string,
+    action: StepUpAction,
+    meta: RequestMeta,
+  ): Promise<'OK' | 'INVALID' | 'LOCKED'> {
+    const credential = await this.repository.lockCredential(tx, userId);
+    const check = checkStepUp(credential, code, this.config.auth.mfaEncryptionKey);
+    if (check.result === 'OK') {
+      await this.repository.updateCredential(tx, userId, {
+        totpLastStep: BigInt(check.step),
+        failedAttempts: 0,
+      });
+      return 'OK';
+    }
+    if (check.result === 'INVALID' && credential) {
+      await this.recordFailure(tx, userId, 'TOTP_STEP_UP_FAILED', meta, { action });
+    }
+    return check.result;
+  }
+
   /** Everything the interface needs to draw itself for the current person. */
   async me(ctx: AuthContext): Promise<MeDto> {
     const run = ctx.tenantId
@@ -640,11 +670,12 @@ export class AuthService {
   private async recordFailure(
     tx: DbClient,
     userId: string,
-    type: Extract<AuthEventType, 'LOGIN_FAILED' | 'MFA_FAILED'>,
+    type: Extract<AuthEventType, 'LOGIN_FAILED' | 'MFA_FAILED' | 'TOTP_STEP_UP_FAILED'>,
     meta: RequestMeta,
+    details?: { action: StepUpAction },
   ): Promise<void> {
     const attempts = await this.repository.incrementFailedAttempts(tx, userId);
-    await this.audit.recordAuthEvent(tx, { userId, type, ...meta });
+    await this.audit.recordAuthEvent(tx, { userId, type, ...meta, details });
     if (attempts >= MAX_FAILED_ATTEMPTS) {
       await this.repository.updateCredential(tx, userId, {
         failedAttempts: 0,

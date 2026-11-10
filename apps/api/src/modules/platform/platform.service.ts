@@ -5,8 +5,13 @@ import { DomainException } from '../../shared/errors/index.js';
 import { type Page, skipAndTake } from '../../shared/pagination.js';
 import { editConflict } from '../../shared/versioning.js';
 import { escapeLike, normalizeName } from '../../shared/text.js';
-import { AuthContextService } from '../auth/index.js';
-import { newActivationCode, normalizeEmail } from '../identity/index.js';
+import {
+  AuthContextService,
+  AuthService,
+  type RequestMeta,
+  type StepUpAction,
+} from '../auth/index.js';
+import { newActivationCode, normalizeEmail, RECOVERY_CODE_DAYS } from '../identity/index.js';
 import {
   applyModuleChange,
   MODULE_CATALOG,
@@ -18,6 +23,13 @@ import {
 import type {
   AddAdminDto,
   AddedAdminDto,
+  GrantedOperatorDto,
+  GrantOperatorDto,
+  NewCompanyDto,
+  PlatformOperatorDto,
+  PlatformPersonDto,
+  RecoveryCodeRequestDto,
+  RevokeOperatorDto,
   CreatedTenantDto,
   CreateTenantDto,
   PlatformActivationCodeDto,
@@ -27,7 +39,12 @@ import type {
   PlatformTenantsQuery,
   PlatformTenantSummaryDto,
 } from './platform.dto.js';
-import { PlatformRepository, type PlatformTenantRow } from './platform.repository.js';
+import {
+  type PlatformOperatorRow,
+  type PlatformPersonRow,
+  PlatformRepository,
+  type PlatformTenantRow,
+} from './platform.repository.js';
 
 const tenantNotFound = () => new DomainException('TENANT_NOT_FOUND', HttpStatus.NOT_FOUND);
 
@@ -44,6 +61,7 @@ export class PlatformService {
     private readonly users: UserDatabase,
     private readonly repository: PlatformRepository,
     private readonly tenancy: TenancyService,
+    private readonly auth: AuthService,
   ) {}
 
   /** The module catalog with its dependencies both ways, in catalog order. */
@@ -227,7 +245,175 @@ export class PlatformService {
     return codeDto(activation);
   }
 
+  // --- Phase 8b (docs/adr/0039) ----------------------------------------------------------------
+
+  /**
+   * A further company, with the rules of the tenant administrator. The tenant version does not
+   * change; sending it twice finds the VAT number taken and adds nothing.
+   */
+  addCompany(id: string, dto: NewCompanyDto): Promise<PlatformTenantDto> {
+    const company = this.tenancy.prepareCompany(dto);
+    return this.run(async (tx) => {
+      const added = await this.repository.addCompany(tx, id, {
+        ...company,
+        taxCode: company.taxCode ?? null,
+      });
+      if (added.outcome === 'NOT_FOUND') throw tenantNotFound();
+      if (added.outcome === 'VAT_EXISTS') {
+        throw new DomainException('COMPANY_VAT_TAKEN', HttpStatus.CONFLICT, {
+          errors: [{ field: 'vatNumber', code: 'COMPANY_VAT_TAKEN' }],
+        });
+      }
+      return this.requireTenant(tx, id);
+    });
+  }
+
+  /** The person with exactly this email, and whether a recovery can be issued for them. */
+  async findPerson(email: string): Promise<PlatformPersonDto> {
+    const self = this.contexts.require().userId;
+    const row = await this.run((tx) => this.repository.findPerson(tx, email));
+    if (!row) throw new DomainException('PERSON_NOT_FOUND', HttpStatus.NOT_FOUND);
+    return toPersonDto(row, self);
+  }
+
+  /**
+   * A recovery code for an activated account, after a fresh one-time code of the operator. The
+   * person's sessions close now; the code lasts a day and is shown once.
+   */
+  issueRecoveryCode(
+    userId: string,
+    dto: RecoveryCodeRequestDto,
+    meta: RequestMeta,
+  ): Promise<PlatformActivationCodeDto> {
+    const activation = newActivationCode(new Date(), RECOVERY_CODE_DAYS);
+    return this.withStepUp(dto.totpCode, 'ACCOUNT_RECOVERY', meta, async (tx) => {
+      const outcome = await this.repository.issueRecoveryCode(tx, userId, dto.reason, activation);
+      switch (outcome) {
+        case 'OK':
+          return codeDto(activation);
+        case 'NOT_FOUND':
+          throw new DomainException('PERSON_NOT_FOUND', HttpStatus.NOT_FOUND);
+        case 'REASON_REQUIRED':
+          throw reasonRequired();
+        default:
+          throw new DomainException('RECOVERY_NOT_ALLOWED', HttpStatus.CONFLICT, {
+            detail: outcome,
+          });
+      }
+    });
+  }
+
+  async listOperators(): Promise<PlatformOperatorDto[]> {
+    const self = this.contexts.require().userId;
+    const rows = await this.run((tx) => this.repository.listOperators(tx));
+    return rows.map((r) => toOperatorDto(r, self));
+  }
+
+  /** A new operator: a new identity gets a code, a known one keeps its account. */
+  grantOperator(dto: GrantOperatorDto, meta: RequestMeta): Promise<GrantedOperatorDto> {
+    const email = normalizeEmail(dto.email);
+    const name = dto.name?.trim() ? normalizeName(dto.name) : null;
+    const activation = newActivationCode();
+    return this.withStepUp(dto.totpCode, 'OPERATOR_GRANT', meta, async (tx) => {
+      const granted = await this.repository.grantOperator(tx, {
+        email,
+        name,
+        confirm: dto.confirmExisting === true,
+        code: activation,
+      });
+      switch (granted.outcome) {
+        case 'NAME_REQUIRED':
+          throw new DomainException('INVALID_NAME', HttpStatus.BAD_REQUEST, {
+            errors: [{ field: 'name', code: 'REQUIRED' }],
+          });
+        case 'USER_DISABLED':
+          throw new DomainException('USER_DISABLED', HttpStatus.CONFLICT, {
+            errors: [{ field: 'email', code: 'USER_DISABLED' }],
+          });
+        case 'ALREADY_OPERATOR':
+          throw new DomainException('OPERATOR_ALREADY', HttpStatus.CONFLICT, {
+            errors: [{ field: 'email', code: 'OPERATOR_ALREADY' }],
+          });
+        case 'NEEDS_CONFIRMATION':
+          // The interface lists the tenants, asks for confirmation and sends confirmExisting.
+          throw new DomainException('OPERATOR_EXISTING_MEMBER', HttpStatus.CONFLICT, {
+            detail: (granted.tenants ?? []).map((t) => t.name).join(', '),
+          });
+      }
+      return {
+        userId: granted.user_id!,
+        activation: granted.identity_created ? codeDto(activation) : null,
+        existingAccount: !granted.identity_created,
+      };
+    });
+  }
+
+  /** Revokes another operator, effective at their next request. */
+  async revokeOperator(userId: string, dto: RevokeOperatorDto, meta: RequestMeta): Promise<void> {
+    await this.withStepUp(dto.totpCode, 'OPERATOR_REVOKE', meta, async (tx) => {
+      const outcome = await this.repository.revokeOperator(
+        tx,
+        userId,
+        dto.reason,
+        dto.closeSessions === true,
+      );
+      switch (outcome) {
+        case 'OK':
+          return;
+        case 'REASON_REQUIRED':
+          throw reasonRequired();
+        case 'SELF':
+          throw new DomainException('OPERATOR_SELF_REVOKE', HttpStatus.CONFLICT);
+        case 'NOT_OPERATOR':
+          throw new DomainException('NOT_AN_OPERATOR', HttpStatus.NOT_FOUND);
+        case 'LAST_OPERATOR':
+          throw new DomainException('LAST_OPERATOR', HttpStatus.CONFLICT);
+      }
+    });
+  }
+
+  /** A new activation code for an operator who has not activated their account. */
+  async issueOperatorCode(userId: string): Promise<PlatformActivationCodeDto> {
+    const activation = newActivationCode();
+    const outcome = await this.run((tx) =>
+      this.repository.issueOperatorCode(tx, userId, activation),
+    );
+    if (outcome === 'NOT_OPERATOR') {
+      throw new DomainException('NOT_AN_OPERATOR', HttpStatus.NOT_FOUND);
+    }
+    if (outcome !== 'OK') {
+      throw new DomainException('ACTIVATION_NOT_ALLOWED', HttpStatus.CONFLICT, { detail: outcome });
+    }
+    return codeDto(activation);
+  }
+
   // ---------------------------------------------------------------------------------------------
+
+  /**
+   * Runs an action that cannot be undone after checking a fresh one-time code of the operator,
+   * in one transaction: an action refused by its function gives the code back (rollback), while
+   * a wrong code is committed as a failure before answering 403 (never 401, which the interface
+   * reads as an expired session).
+   */
+  private async withStepUp<T>(
+    code: string | undefined,
+    action: StepUpAction,
+    meta: RequestMeta,
+    work: (tx: DbClient) => Promise<T>,
+  ): Promise<T> {
+    if (!code?.trim()) throw invalidTotp();
+    const userId = this.contexts.require().userId;
+    const result = await this.run(async (tx) => {
+      const check = await this.auth.verifyStepUp(tx, userId, code, action, meta);
+      if (check !== 'OK') return { check };
+      return { check, value: await work(tx) };
+    });
+    if (result.check === 'LOCKED') {
+      throw new DomainException('ACCOUNT_LOCKED', HttpStatus.FORBIDDEN);
+    }
+    if (result.check === 'INVALID') throw invalidTotp();
+    return (result as { value: T }).value;
+  }
 
   /** The context of the person only: no tenant, whatever the session has chosen. */
   private run<T>(work: (tx: DbClient) => Promise<T>): Promise<T> {
@@ -257,6 +443,16 @@ export class PlatformService {
     }
   }
 }
+
+const invalidTotp = () =>
+  new DomainException('INVALID_TOTP_CODE', HttpStatus.FORBIDDEN, {
+    errors: [{ field: 'totpCode', code: 'INVALID_TOTP_CODE' }],
+  });
+
+const reasonRequired = () =>
+  new DomainException('STATUS_REASON_REQUIRED', HttpStatus.BAD_REQUEST, {
+    errors: [{ field: 'reason', code: 'REQUIRED' }],
+  });
 
 function versioned(result: { outcome: string }): void {
   switch (result.outcome) {
@@ -310,5 +506,59 @@ function toTenantDto(row: PlatformTenantRow): PlatformTenantDto {
       lastSeenAt: iso(a.lastSeenAt),
     })),
     otherPeople: row.otherPeople,
+  };
+}
+
+function toPersonDto(row: PlatformPersonRow, self: string): PlatformPersonDto {
+  const isSelf = row.userId === self;
+  // The same order as app_platform_issue_recovery_code, so the interface says what it would.
+  const recoveryBlocked =
+    row.status !== 'ACTIVE'
+      ? 'DISABLED'
+      : isSelf
+        ? 'SELF'
+        : row.operator
+          ? 'IS_OPERATOR'
+          : !row.activated
+            ? 'NOT_ACTIVATED'
+            : row.memberships.length === 0
+              ? 'NO_MEMBERSHIP'
+              : null;
+  return {
+    userId: row.userId,
+    name: row.name,
+    email: row.email,
+    status: row.status,
+    activated: row.activated,
+    operator: row.operator,
+    self: isSelf,
+    lastSeenAt: iso(row.lastSeenAt),
+    memberships: row.memberships.map((m) => ({
+      tenantId: m.tenantId,
+      tenantName: m.tenantName,
+      slug: m.slug,
+      tenantStatus: m.tenantStatus,
+      role: m.role,
+      customRole: m.customRole,
+    })),
+    recoveryBlocked,
+  };
+}
+
+function toOperatorDto(row: PlatformOperatorRow, self: string): PlatformOperatorDto {
+  return {
+    grantId: row.grant_id,
+    userId: row.user_id,
+    name: row.name,
+    email: row.email,
+    activated: row.activated,
+    canIssueCode: !row.revoked_at && !row.activated && !row.other_tenants,
+    self: row.user_id === self,
+    lastSeenAt: row.last_seen_at?.toISOString() ?? null,
+    grantedAt: row.granted_at.toISOString(),
+    grantedByName: row.granted_by_name,
+    revokedAt: row.revoked_at?.toISOString() ?? null,
+    revokedByName: row.revoked_by_name,
+    revokeReason: row.revoke_reason,
   };
 }
