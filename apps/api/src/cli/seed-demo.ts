@@ -309,6 +309,16 @@ export const DEMO = {
 
 /** The slugs of the demo tenants: `reset-demo` may delete these, and nothing else. */
 export const DEMO_SLUGS: readonly string[] = DEMO.tenants.map((t) => t.slug);
+/**
+ * The platform operator of the demo, outside production only (fase-8a.md, question 4): in
+ * production the demo has no shared credentials, and the real operator is granted from the
+ * terminal. Belongs to no tenant.
+ */
+export const DEMO_OPERATOR = {
+  email: 'operatore@example.com',
+  name: 'Ornella Operatrice',
+} as const;
+
 /** The emails of the demo people (without a test suffix). */
 export const DEMO_EMAILS: readonly string[] = [
   ...new Set(DEMO.tenants.flatMap((t) => t.members.map((m) => `${m.email}@example.com`))),

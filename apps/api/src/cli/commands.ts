@@ -14,6 +14,7 @@ import { DomainException } from '../shared/errors/index.js';
 import { isCalendarDate } from '../shared/dates.js';
 import { keptMembers, resetDemo } from './demo-reset.js';
 import {
+  DEMO_OPERATOR,
   DEMO_PASSWORD,
   DEMO_SLUGS,
   DEMO_TOTP_SECRET,
@@ -107,6 +108,24 @@ async function demoCredentials(
   }
 }
 
+/** Outside production, the demo has a platform operator with the demo credentials too. */
+async function demoOperator(s: Services, tx: Parameters<AuthService['setDemoCredentials']>[0]) {
+  if (s.config.isProduction) return false;
+  const operator = await s.identity.ensurePlatformOperator(tx, DEMO_OPERATOR);
+  if (operator.granted) {
+    await s.audit.recordAuthEvent(tx, {
+      userId: operator.userId,
+      type: 'OPERATOR_GRANTED',
+      details: { by: 'seed-demo' },
+    });
+  }
+  await s.auth.setDemoCredentials(tx, operator.userId, {
+    password: DEMO_PASSWORD,
+    totpSecret: DEMO_TOTP_SECRET,
+  });
+  return true;
+}
+
 function printDemo(
   io: CliIo,
   production: boolean,
@@ -134,6 +153,7 @@ function printDemo(
   } else {
     io.out(`Fictitious data. Every demo person signs in with the password ${DEMO_PASSWORD}`);
     io.out(`and the authenticator secret ${DEMO_TOTP_SECRET} (add it to any authenticator app).`);
+    io.out(`The platform operator ${DEMO_OPERATOR.email} signs in the same way.`);
   }
 }
 
@@ -386,6 +406,7 @@ export const COMMANDS: Record<string, Command> = {
       const result = await context.prisma.$transaction(async (tx) => {
         const seeded = await seedDemo(tx, demoServices(context), { today: demoToday(v) });
         await demoCredentials(context, tx, seeded.userIds);
+        await demoOperator(context, tx);
         return seeded;
       }, SEED_TRANSACTION);
       printDemo(io, context.config.isProduction, result);
@@ -433,6 +454,7 @@ export const COMMANDS: Record<string, Command> = {
       const result = await context.prisma.$transaction(async (tx) => {
         const reset = await resetDemo(tx, demoServices(context), { today: demoToday(v) });
         await demoCredentials(context, tx, reset.userIds);
+        await demoOperator(context, tx);
         return reset;
       }, RESET_TRANSACTION);
       printDemo(io, context.config.isProduction, result);
