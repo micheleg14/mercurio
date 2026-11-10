@@ -57,7 +57,8 @@
     "PAYMENT_REVERSED": "Incasso annullato",
     "TENANT_RENAMED": "Cliente rinominato",
     "TENANT_SUSPENDED": "Cliente sospeso",
-    "TENANT_REACTIVATED": "Cliente riattivato"
+    "TENANT_REACTIVATED": "Cliente riattivato",
+    "MEMBER_RECOVERY_ISSUED": "Codice di recupero dell'account generato"
   },
   "subjectType": {
     "party": "Soggetto",

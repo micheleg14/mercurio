@@ -3,7 +3,9 @@
   "nav": {
     "tenants": "Clienti",
     "backToTenants": "Torna ai tuoi clienti",
-    "open": "Piattaforma"
+    "open": "Piattaforma",
+    "recovery": "Recupero account",
+    "operators": "Operatori"
   },
   "modules": {
     "registry": {
@@ -86,7 +88,7 @@
     "rename": "Rinomina",
     "saveName": "Salva il nome",
     "companies": "Aziende",
-    "companiesHint": "Le aggiunge l'amministratore del cliente, dalla pagina Aziende.",
+    "companiesHint": "L'intestazione (indirizzo, IBAN, logo) la completa l'amministratore del cliente dalla pagina Aziende.",
     "modules": "Moduli",
     "admins": "Amministratori",
     "otherPeople_one": "Nel cliente lavora anche {{count}} altra persona.",
@@ -125,7 +127,70 @@
       "MODULES_CHANGED": "Moduli: {{modules}}",
       "MEMBER_ADDED": "Amministratore aggiunto: {{email}}",
       "MEMBER_UPDATED": "Reso amministratore: {{email}}",
-      "ACTIVATION_CODE_ISSUED": "Codice di attivazione per {{email}}"
+      "ACTIVATION_CODE_ISSUED": "Codice di attivazione per {{email}}",
+      "COMPANY_ADDED": "Azienda aggiunta: {{name}}",
+      "MEMBER_RECOVERY_ISSUED": "Codice di recupero per {{email}}"
+    },
+    "addCompany": "Aggiungi azienda",
+    "addCompanyTitle": "Nuova azienda",
+    "addCompanyHint": "Stesse regole dell'amministratore del cliente: la partita IVA è unica nel cliente.",
+    "companyAdded": "{{name}} aggiunta. Gli amministratori la vedono subito; chi ha un elenco di aziende la riceve dalla pagina Persone."
+  },
+  "recovery": {
+    "title": "Recupero account",
+    "description": "Per chi ha già attivato l'account e ha perso il telefono o i codici di recupero. Cerca la persona con l'email esatta e verifica per quali clienti lavora prima di generare il codice.",
+    "email": "Email",
+    "emailHint": "L'indirizzo esatto: non si cercano parti di email.",
+    "search": "Cerca",
+    "operatorBadge": "Operatore",
+    "neverSignedIn": "Non è ancora entrata",
+    "worksFor": "Lavora per",
+    "noTenants": "Nessun cliente.",
+    "worksForHint": "Gli amministratori di questi clienti vedranno il recupero nella loro Attività, senza il motivo.",
+    "issue": "Genera codice di recupero",
+    "confirmTitle": "Recupero per {{name}}",
+    "confirmDescription": "Le sessioni aperte della persona si chiudono adesso. Quando userà il codice perderà password, app di autenticazione e codici di recupero e li configurerà di nuovo. Il codice scade tra 24 ore.",
+    "reason": "Motivo",
+    "reasonHint": "Lo legge la persona nel suo account; non arriva ai clienti.",
+    "blocked": {
+      "SELF": "Questo è il tuo account: il recupero lo fa un altro operatore.",
+      "IS_OPERATOR": "È un operatore della piattaforma: il recupero di un operatore non si fa dal browser. Da terminale: issue-code --email {{email}}",
+      "NOT_ACTIVATED": "Non ha ancora attivato l'account: serve un codice di attivazione, che dà il suo amministratore dalla pagina Persone (o tu dalla scheda del cliente, se è amministratore).",
+      "NO_MEMBERSHIP": "Non lavora per nessun cliente: nessuno vedrebbe il recupero. Aggiungila prima a un cliente.",
+      "DISABLED": "Questo account è disattivato."
     }
+  },
+  "operators": {
+    "title": "Operatori",
+    "description": "Le persone che gestiscono la piattaforma, con gli stessi poteri. Aggiungere e revocare chiede un nuovo codice della tua app di autenticazione.",
+    "add": "Aggiungi operatore",
+    "empty": "Nessun operatore.",
+    "name": "Nome",
+    "email": "Email",
+    "lastSeen": "Ultimo accesso",
+    "granted": "Concesso",
+    "actions": "Azioni",
+    "you": "Tu",
+    "never": "Mai",
+    "grantedBy": "il {{date}} da {{name}}",
+    "grantedTerminal": "il {{date}} da terminale",
+    "revoke": "Revoca",
+    "terminalHint": "Chi ha già attivato l'account e ha perso l'app di autenticazione si recupera da terminale (issue-code): il recupero di un operatore non passa dal browser.",
+    "revoked_one": "{{count}} concessione revocata",
+    "revoked_other": "{{count}} concessioni revocate",
+    "revokedOn": "Revocata il {{date}} da {{name}}: {{reason}}",
+    "terminal": "terminale",
+    "addTitle": "Nuovo operatore",
+    "addDescription": "Avrà accesso a tutta l'area della piattaforma: clienti, recuperi e operatori.",
+    "nameHint": "Serve solo se l'email non ha ancora un account Mercurio.",
+    "confirmExistingTitle": "Rendere operatore {{email}}?",
+    "confirmExisting": "Questa persona lavora già per: {{tenants}}. Oltre al suo lavoro avrà accesso all'area della piattaforma.",
+    "confirmGrant": "Rendi operatore",
+    "grantedExisting": "{{email}} ha già un account Mercurio: ora è un operatore e entra con le sue credenziali.",
+    "revokeTitle": "Revocare {{name}}?",
+    "revokeDescription": "Dalla sua prossima richiesta non entra più nell'area della piattaforma. La concessione resta nello storico.",
+    "closeSessions": "Chiudi anche le sessioni della persona",
+    "closeSessionsHint": "Per un account che credi compromesso. Altrimenti la persona continua a lavorare per i suoi clienti.",
+    "revokedNotice": "{{name}} non è più un operatore."
   }
 }

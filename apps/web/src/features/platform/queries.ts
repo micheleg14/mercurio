@@ -11,6 +11,11 @@ export type CreateTenantBody = components['schemas']['CreateTenantDto'];
 export type CreatedTenant = components['schemas']['CreatedTenantDto'];
 export type AddAdminBody = components['schemas']['AddAdminDto'];
 export type TenantStatus = Tenant['status'];
+export type NewCompanyBody = components['schemas']['NewCompanyDto'];
+export type PlatformPerson = components['schemas']['PlatformPersonDto'];
+export type PlatformOperator = components['schemas']['PlatformOperatorDto'];
+export type GrantOperatorBody = components['schemas']['GrantOperatorDto'];
+export type RevokeOperatorBody = components['schemas']['RevokeOperatorDto'];
 
 const keys = {
   all: ['platform'] as const,
@@ -19,6 +24,7 @@ const keys = {
     ['platform', 'tenants', q, status, page] as const,
   tenant: (id: string) => ['platform', 'tenant', id] as const,
   events: (id: string, page: number) => ['platform', 'tenant', id, 'events', page] as const,
+  operators: ['platform', 'operators'] as const,
 };
 
 export function usePlatformModules() {
@@ -129,5 +135,79 @@ export function useIssueAdminCode(id: string) {
         }),
       ),
     onSuccess: () => saved(),
+  });
+}
+
+// --- Phase 8b (docs/adr/0039) ----------------------------------------------------------------
+
+export function useAddCompany(id: string) {
+  const saved = useSaved();
+  return useMutation({
+    mutationFn: (body: NewCompanyBody) =>
+      unwrap(api.POST('/platform/tenants/{id}/companies', { params: { path: { id } }, body })),
+    onSuccess: saved,
+  });
+}
+
+/** A lookup by exact email: a POST, so the email stays out of the server logs. */
+export function useLookupPerson() {
+  return useMutation({
+    mutationFn: (email: string) => unwrap(api.POST('/platform/people/lookup', { body: { email } })),
+  });
+}
+
+export function useIssueRecoveryCode() {
+  return useMutation({
+    mutationFn: ({ userId, ...body }: { userId: string; reason: string; totpCode: string }) =>
+      unwrap(
+        api.POST('/platform/people/{userId}/recovery-code', {
+          params: { path: { userId } },
+          body,
+        }),
+      ),
+  });
+}
+
+export function useOperators() {
+  return useQuery({
+    queryKey: keys.operators,
+    queryFn: () => unwrap(api.GET('/platform/operators')),
+  });
+}
+
+function useOperatorsChanged() {
+  const queryClient = useQueryClient();
+  return () => queryClient.invalidateQueries({ queryKey: keys.operators });
+}
+
+export function useGrantOperator() {
+  const changed = useOperatorsChanged();
+  return useMutation({
+    mutationFn: (body: GrantOperatorBody) => unwrap(api.POST('/platform/operators', { body })),
+    onSuccess: changed,
+  });
+}
+
+export function useRevokeOperator() {
+  const changed = useOperatorsChanged();
+  return useMutation({
+    mutationFn: ({ userId, ...body }: RevokeOperatorBody & { userId: string }) =>
+      unwrap(
+        api.POST('/platform/operators/{userId}/revoke', { params: { path: { userId } }, body }),
+      ),
+    onSuccess: changed,
+  });
+}
+
+export function useIssueOperatorCode() {
+  const changed = useOperatorsChanged();
+  return useMutation({
+    mutationFn: (userId: string) =>
+      unwrap(
+        api.POST('/platform/operators/{userId}/activation-code', {
+          params: { path: { userId } },
+        }),
+      ),
+    onSuccess: changed,
   });
 }

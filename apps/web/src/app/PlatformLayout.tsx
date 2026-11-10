@@ -1,8 +1,10 @@
 import {
   ArrowLeftRightIcon,
   Building2Icon,
+  LifeBuoyIcon,
   LogOutIcon,
   MenuIcon,
+  ShieldCheckIcon,
   UserIcon,
   XIcon,
 } from 'lucide-react';
@@ -65,6 +67,13 @@ function PlatformSidebar() {
   );
 }
 
+/** The pages of the area, in menu order (docs/adr/0038, 0039). */
+const PLATFORM_PAGES = [
+  { to: '/platform/tenants', label: 'nav.tenants', Icon: Building2Icon },
+  { to: '/platform/recovery', label: 'nav.recovery', Icon: LifeBuoyIcon },
+  { to: '/platform/operators', label: 'nav.operators', Icon: ShieldCheckIcon },
+] as const;
+
 function SidebarBody({ panel = false }: { panel?: boolean }) {
   const { t } = useTranslation();
   const { t: tp } = useTranslation('platform');
@@ -99,23 +108,25 @@ function SidebarBody({ panel = false }: { panel?: boolean }) {
         <nav aria-label={t('nav.menu')}>
           <SidebarGroup>
             <SidebarMenu>
-              <SidebarMenuItem>
-                <SidebarMenuButton
-                  isActive={pathname.startsWith('/platform/tenants')}
-                  tooltip={tp('nav.tenants')}
-                  size={size}
-                  render={
-                    <Link
-                      to="/platform/tenants"
-                      aria-current={pathname === '/platform/tenants' ? 'page' : undefined}
-                      onClick={closePanel}
-                    />
-                  }
-                >
-                  <Building2Icon />
-                  <span>{tp('nav.tenants')}</span>
-                </SidebarMenuButton>
-              </SidebarMenuItem>
+              {PLATFORM_PAGES.map(({ to, label, Icon }) => (
+                <SidebarMenuItem key={to}>
+                  <SidebarMenuButton
+                    isActive={pathname.startsWith(to)}
+                    tooltip={tp(label)}
+                    size={size}
+                    render={
+                      <Link
+                        to={to}
+                        aria-current={pathname === to ? 'page' : undefined}
+                        onClick={closePanel}
+                      />
+                    }
+                  >
+                    <Icon />
+                    <span>{tp(label)}</span>
+                  </SidebarMenuButton>
+                </SidebarMenuItem>
+              ))}
             </SidebarMenu>
           </SidebarGroup>
         </nav>

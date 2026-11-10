@@ -35,6 +35,8 @@ import { NewDocumentPage } from '@/features/warehouse/NewDocumentPage';
 import { StockPage } from '@/features/warehouse/StockPage';
 import { WarehousesPage } from '@/features/warehouse/WarehousesPage';
 import { NewTenantPage } from '@/features/platform/NewTenantPage';
+import { OperatorsPage } from '@/features/platform/OperatorsPage';
+import { RecoveryPage } from '@/features/platform/RecoveryPage';
 import { TenantPage } from '@/features/platform/TenantPage';
 import { TenantsPage } from '@/features/platform/TenantsPage';
 import { RequireAnonymous, RequirePlatformOperator, RequireSession } from './AuthProvider';
@@ -116,6 +118,8 @@ export const routes = [
           { path: 'tenants', element: <TenantsPage /> },
           { path: 'tenants/new', element: <NewTenantPage /> },
           { path: 'tenants/:id', element: <TenantPage /> },
+          { path: 'recovery', element: <RecoveryPage /> },
+          { path: 'operators', element: <OperatorsPage /> },
           { path: 'account', element: <AccountPage /> },
         ],
       },

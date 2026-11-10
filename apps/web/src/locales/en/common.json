@@ -110,5 +110,15 @@
     "copied": "Message copied",
     "close": "Close",
     "closeHint": "Once this window is closed the code cannot be seen again: if it is lost, issue a new one."
+  },
+  "stepUp": {
+    "code": "Authenticator app code",
+    "hint": "A new code is needed: if you just used one to sign in or for another confirmation, wait for it to change (30 seconds at most)."
+  },
+  "recoveryCode": {
+    "title": "Recovery code for {{name}}",
+    "description": "Shown only now, and valid until {{date}}. Hand it over in person or on a channel other than the one the request came from: with it the person chooses a new password and sets up two-factor authentication again.",
+    "message": "Hello {{name}}, to recover your access to Mercurio open this address by {{date}}:\n\n{{url}}\n\nIf the page asks for the code, it is: {{code}}\n\nYou will choose a new password and set up the authenticator app again.",
+    "closeHint": "Once this window is closed the code cannot be seen again: if it is lost, issue another one."
   }
 }

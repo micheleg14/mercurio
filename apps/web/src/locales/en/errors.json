@@ -146,7 +146,9 @@
     "MEMBERSHIP_NEEDS_COMPANIES": "Choose at least one company.",
     "TENANT_SLUG_EXISTS": "Already used by another customer.",
     "ALREADY_ADMIN": "Already an administrator.",
-    "USER_DISABLED": "This account is disabled."
+    "USER_DISABLED": "This account is disabled.",
+    "OPERATOR_ALREADY": "This person is already a platform operator.",
+    "INVALID_TOTP_CODE": "Wrong or already used code: wait for the app's next code and try again."
   },
   "COMPANY_DATA_INCOMPLETE": "The company lacks data to issue the invoice: complete it in Company data.",
   "CUSTOMER_DATA_INCOMPLETE": "The customer lacks data to issue the invoice (address, tax identifier, SdI code or PEC): complete its record.",
@@ -193,5 +195,14 @@
   "UNKNOWN_MODULE": "Unknown module.",
   "MODULE_ALWAYS_ON": "Registry is always on.",
   "MODULE_DEPENDENCY_MISSING": "A chosen module needs another module that is not on.",
-  "MODULE_REQUIRED_BY_OTHER": "Another active module needs this one: switch that off first."
+  "MODULE_REQUIRED_BY_OTHER": "Another active module needs this one: switch that off first.",
+  "PERSON_NOT_FOUND": "No person with this email.",
+  "RECOVERY_NOT_ALLOWED": "A recovery for this person is not issued from the browser.",
+  "INVALID_TOTP_CODE": "Wrong or already used code: wait for the app's next code and try again.",
+  "ACCOUNT_LOCKED": "Too many wrong codes: your account is locked for a few minutes.",
+  "OPERATOR_ALREADY": "This person is already a platform operator.",
+  "OPERATOR_EXISTING_MEMBER": "This person already works for customers.",
+  "OPERATOR_SELF_REVOKE": "You cannot revoke yourself: another operator does it.",
+  "LAST_OPERATOR": "This is the last operator: add another one first.",
+  "NOT_AN_OPERATOR": "This person is no longer an operator: reload the page."
 }

@@ -3,7 +3,9 @@
   "nav": {
     "tenants": "Customers",
     "backToTenants": "Back to your customers",
-    "open": "Platform"
+    "open": "Platform",
+    "recovery": "Account recovery",
+    "operators": "Operators"
   },
   "modules": {
     "registry": {
@@ -86,7 +88,7 @@
     "rename": "Rename",
     "saveName": "Save name",
     "companies": "Companies",
-    "companiesHint": "The customer's administrator adds them, from the Companies page.",
+    "companiesHint": "The letterhead (address, IBAN, logo) is completed by the customer's administrator, from the Companies page.",
     "modules": "Modules",
     "admins": "Administrators",
     "otherPeople_one": "{{count}} other person works for the customer.",
@@ -125,7 +127,70 @@
       "MODULES_CHANGED": "Modules: {{modules}}",
       "MEMBER_ADDED": "Administrator added: {{email}}",
       "MEMBER_UPDATED": "Made administrator: {{email}}",
-      "ACTIVATION_CODE_ISSUED": "Activation code for {{email}}"
+      "ACTIVATION_CODE_ISSUED": "Activation code for {{email}}",
+      "COMPANY_ADDED": "Company added: {{name}}",
+      "MEMBER_RECOVERY_ISSUED": "Recovery code for {{email}}"
+    },
+    "addCompany": "Add company",
+    "addCompanyTitle": "New company",
+    "addCompanyHint": "The same rules as the customer's administrator: the VAT number is unique within the customer.",
+    "companyAdded": "{{name}} added. Administrators see it at once; people with a list of companies get it from the People page."
+  },
+  "recovery": {
+    "title": "Account recovery",
+    "description": "For people who activated their account and lost their phone or recovery codes. Look the person up by exact email and check which customers they work for before issuing the code.",
+    "email": "Email",
+    "emailHint": "The exact address: parts of an email are not searched.",
+    "search": "Search",
+    "operatorBadge": "Operator",
+    "neverSignedIn": "Has not signed in yet",
+    "worksFor": "Works for",
+    "noTenants": "No customers.",
+    "worksForHint": "The administrators of these customers will see the recovery in their Activity, without the reason.",
+    "issue": "Issue recovery code",
+    "confirmTitle": "Recovery for {{name}}",
+    "confirmDescription": "The person's open sessions close now. When they use the code they lose their password, authenticator app and recovery codes, and set them up again. The code expires in 24 hours.",
+    "reason": "Reason",
+    "reasonHint": "The person reads it in their account; it does not reach the customers.",
+    "blocked": {
+      "SELF": "This is your account: another operator does the recovery.",
+      "IS_OPERATOR": "This is a platform operator: an operator is not recovered from the browser. From the terminal: issue-code --email {{email}}",
+      "NOT_ACTIVATED": "The account is not activated yet: it needs an activation code, which their administrator issues from the People page (or you from the customer's page, for an administrator).",
+      "NO_MEMBERSHIP": "Works for no customer: nobody would see the recovery. Add them to a customer first.",
+      "DISABLED": "This account is disabled."
     }
+  },
+  "operators": {
+    "title": "Operators",
+    "description": "The people who run the platform, with the same powers. Adding and revoking ask for a new code of your authenticator app.",
+    "add": "Add operator",
+    "empty": "No operators.",
+    "name": "Name",
+    "email": "Email",
+    "lastSeen": "Last seen",
+    "granted": "Granted",
+    "actions": "Actions",
+    "you": "You",
+    "never": "Never",
+    "grantedBy": "on {{date}} by {{name}}",
+    "grantedTerminal": "on {{date}} from the terminal",
+    "revoke": "Revoke",
+    "terminalHint": "An operator who activated their account and lost the authenticator app is recovered from the terminal (issue-code): an operator is never recovered from the browser.",
+    "revoked_one": "{{count}} revoked grant",
+    "revoked_other": "{{count}} revoked grants",
+    "revokedOn": "Revoked on {{date}} by {{name}}: {{reason}}",
+    "terminal": "the terminal",
+    "addTitle": "New operator",
+    "addDescription": "They will reach the whole platform area: customers, recoveries and operators.",
+    "nameHint": "Needed only if the email has no Mercurio account yet.",
+    "confirmExistingTitle": "Make {{email}} an operator?",
+    "confirmExisting": "This person already works for: {{tenants}}. Besides their work they will reach the platform area.",
+    "confirmGrant": "Make operator",
+    "grantedExisting": "{{email}} already has a Mercurio account: they are now an operator and sign in as usual.",
+    "revokeTitle": "Revoke {{name}}?",
+    "revokeDescription": "From their next request they no longer reach the platform area. The grant stays in the history.",
+    "closeSessions": "Close the person's sessions too",
+    "closeSessionsHint": "For an account you believe compromised. Otherwise the person keeps working for their customers.",
+    "revokedNotice": "{{name}} is no longer an operator."
   }
 }

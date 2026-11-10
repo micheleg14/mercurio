@@ -110,5 +110,15 @@
     "copied": "Messaggio copiato",
     "close": "Chiudi",
     "closeHint": "Chiusa la finestra il codice non si rivede: se si perde, genera un nuovo codice."
+  },
+  "stepUp": {
+    "code": "Codice dell'app di autenticazione",
+    "hint": "Serve un codice nuovo: se l'hai appena usato per entrare o per un'altra conferma, attendi che cambi (al massimo 30 secondi)."
+  },
+  "recoveryCode": {
+    "title": "Codice di recupero per {{name}}",
+    "description": "Viene mostrato solo ora e scade il {{date}}. Consegnalo a voce o in un canale diverso da quello da cui è arrivata la richiesta: con il codice la persona sceglie una nuova password e configura di nuovo l'autenticazione a due fattori.",
+    "message": "Ciao {{name}}, per recuperare l'accesso a Mercurio apri questo indirizzo entro il {{date}}:\n\n{{url}}\n\nSe la pagina chiede il codice, è questo: {{code}}\n\nSceglierai una nuova password e configurerai di nuovo l'app di autenticazione.",
+    "closeHint": "Chiusa la finestra il codice non si rivede: se si perde, generane un altro."
   }
 }

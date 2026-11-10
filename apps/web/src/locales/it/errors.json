@@ -146,7 +146,9 @@
     "MEMBERSHIP_NEEDS_COMPANIES": "Scegli almeno un'azienda.",
     "TENANT_SLUG_EXISTS": "Già usato da un altro cliente.",
     "ALREADY_ADMIN": "È già amministratore.",
-    "USER_DISABLED": "Questo account è disattivato."
+    "USER_DISABLED": "Questo account è disattivato.",
+    "OPERATOR_ALREADY": "Questa persona è già un operatore della piattaforma.",
+    "INVALID_TOTP_CODE": "Codice errato o già usato: attendi il prossimo codice dell'app e riprova."
   },
   "COMPANY_DATA_INCOMPLETE": "Mancano dati dell'azienda per emettere la fattura: completali in Dati azienda.",
   "CUSTOMER_DATA_INCOMPLETE": "Mancano dati del cliente per emettere la fattura (indirizzo, identificativo fiscale, codice SdI o PEC): completali nella sua scheda.",
@@ -193,5 +195,14 @@
   "UNKNOWN_MODULE": "Modulo sconosciuto.",
   "MODULE_ALWAYS_ON": "Anagrafiche è sempre attivo.",
   "MODULE_DEPENDENCY_MISSING": "Un modulo scelto richiede un altro modulo che non è attivo.",
-  "MODULE_REQUIRED_BY_OTHER": "Questo modulo serve a un altro modulo attivo: disattiva prima quello."
+  "MODULE_REQUIRED_BY_OTHER": "Questo modulo serve a un altro modulo attivo: disattiva prima quello.",
+  "PERSON_NOT_FOUND": "Nessuna persona con questa email.",
+  "RECOVERY_NOT_ALLOWED": "Per questa persona il recupero non si genera dal browser.",
+  "INVALID_TOTP_CODE": "Codice errato o già usato: attendi il prossimo codice dell'app e riprova.",
+  "ACCOUNT_LOCKED": "Troppi codici errati: il tuo account è bloccato per qualche minuto.",
+  "OPERATOR_ALREADY": "Questa persona è già un operatore della piattaforma.",
+  "OPERATOR_EXISTING_MEMBER": "Questa persona lavora già per dei clienti.",
+  "OPERATOR_SELF_REVOKE": "Non puoi revocare te stesso: lo fa un altro operatore.",
+  "LAST_OPERATOR": "È l'ultimo operatore: aggiungine prima un altro.",
+  "NOT_AN_OPERATOR": "Questa persona non è più un operatore: ricarica la pagina."
 }

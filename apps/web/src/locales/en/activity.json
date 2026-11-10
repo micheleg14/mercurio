@@ -57,7 +57,8 @@
     "PAYMENT_REVERSED": "Payment undone",
     "TENANT_RENAMED": "Customer renamed",
     "TENANT_SUSPENDED": "Customer suspended",
-    "TENANT_REACTIVATED": "Customer reactivated"
+    "TENANT_REACTIVATED": "Customer reactivated",
+    "MEMBER_RECOVERY_ISSUED": "Account recovery code issued"
   },
   "subjectType": {
     "party": "Party",

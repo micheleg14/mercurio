@@ -49,7 +49,10 @@
       "ACCOUNT_RECOVERY_ISSUED": "Account recovery started by the operator",
       "OPERATOR_GRANTED": "Platform operator role granted",
       "OPERATOR_REVOKED": "Platform operator role revoked",
-      "SESSIONS_REVOKED": "Sessions closed by the operator"
-    }
+      "SESSIONS_REVOKED": "Sessions closed by the operator",
+      "ACTIVATION_CODE_ISSUED": "Activation code issued by the operator",
+      "TOTP_STEP_UP_FAILED": "Wrong two-factor code in a confirmation"
+    },
+    "reason": "Reason: {{reason}}"
   }
 }
