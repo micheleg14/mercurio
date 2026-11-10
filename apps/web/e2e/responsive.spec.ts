@@ -227,6 +227,29 @@ test('@phone the platform area: customers as cards, a customer in one column', a
   await expectNoHorizontalScroll(page);
   await expectAccessible(page, 'platform customer on a phone');
   await snap(page, 'platform-2-tenant');
+
+  // Phase 8b: account recovery, one column under the search; operators as cards.
+  await page.getByRole('button', { name: 'Apri il menu' }).click();
+  await page
+    .getByRole('dialog', { name: 'Menu principale' })
+    .getByRole('link', { name: 'Recupero account' })
+    .click();
+  await page.getByLabel('Email').fill('marco.verdi@example.com');
+  await page.getByRole('button', { name: 'Cerca' }).click();
+  await expect(page.getByRole('button', { name: 'Genera codice di recupero' })).toBeVisible();
+  await expectNoHorizontalScroll(page);
+  await expectAccessible(page, 'platform recovery on a phone');
+  await snap(page, 'platform-3-recovery');
+
+  await page.getByRole('button', { name: 'Apri il menu' }).click();
+  await page
+    .getByRole('dialog', { name: 'Menu principale' })
+    .getByRole('link', { name: 'Operatori' })
+    .click();
+  await expect(page.getByRole('heading', { name: 'Operatori' })).toBeVisible();
+  await expect(page.getByRole('table')).toHaveCount(0);
+  await expectNoHorizontalScroll(page);
+  await snap(page, 'platform-4-operators');
 });
 
 test('@tablet icons-only sidebar, the table without secondary columns', async ({ page }) => {

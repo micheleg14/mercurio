@@ -22,7 +22,9 @@ term; the interface uses the term of the selected language.
 | refresh token                   | token di rinnovo             | Cookie that obtains a new access token; replaced at every use                                       |
 | two-factor authentication (MFA) | autenticazione a due fattori | Sign-in with a password and a code from an authenticator app (TOTP)                                 |
 | recovery code                   | codice di recupero           | One-time code that replaces the app's code when the app is lost                                     |
-| account recovery                | recupero dell'account        | A new activation code issued by the operator: password and two-factor setup start over              |
+| account recovery                | recupero dell'account        | A code issued by the operator, valid 24 hours: password and two-factor setup start over (ADR 0039)  |
+| step-up                         | controllo supplementare      | A fresh authenticator code asked again before an action that cannot be undone (ADR 0039)            |
+| operator grant                  | concessione                  | The record that makes a person an operator; a revocation closes it and the history stays            |
 | permission                      | permesso                     | What a role may do, as `area:action` (e.g. `audit:read`)                                            |
 | audit log                       | registro attività            | Append-only record of who did what, and of security events                                          |
 | platform operator               | operatore della piattaforma  | Who creates and governs tenants from the browser, belonging to none of them (ADR 0038)              |

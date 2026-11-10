@@ -51,9 +51,11 @@ Named after Mercury, the Roman god of commerce.
   activation code and chooses what they reach: a built-in role or one the customer defines,
   permission by permission, on all its companies or some; further companies of the group too.
 - **Platform operator**: creates customers from the browser (first company, modules, first
-  administrator), switches their modules on and off, suspends and reactivates them, without ever
-  seeing their working data; every action in the customer's own audit log.
-- **Security**: sign-in with TOTP two-factor authentication, roles, audit log.
+  administrator), adds companies, switches their modules on and off, suspends and reactivates them,
+  without ever seeing their working data; every action in the customer's own audit log. Recovers
+  the account of someone who lost their phone, and manages the other operators.
+- **Security**: sign-in with TOTP two-factor authentication, roles, audit log; a fresh code of the
+  authenticator for the actions that cannot be undone.
 - **Demo**: two fictitious tenants with twelve months of history, written through the same rules as
   the API, showing every feature at least once.
 
@@ -196,10 +198,10 @@ its settings and the version of the app that is running:
 From then on customers are created in the browser, in the platform area (`/mercurio/platform`): the
 operator enters the customer's name, its first company, the modules and the first administrator, and
 hands over the administrator's activation code. The operator also switches modules on and off,
-adds an administrator, suspends and reactivates a customer; they never see its parties, stock,
-orders or invoices ([ADR 0038](docs/adr/0038-platform-operator.md)). The same steps exist as
-commands (`create-tenant`, `set-modules`, …) for scripts and emergencies; `revoke-operator` and
-`list-operators` manage operators.
+adds a company or an administrator, suspends and reactivates a customer; they never see its parties,
+stock, orders or invoices ([ADR 0038](docs/adr/0038-platform-operator.md)). Further operators are
+added and revoked from the browser too. The same steps exist as commands (`create-tenant`,
+`set-modules`, `revoke-operator`, …) for scripts and emergencies.
 
 `docker-compose.prod.yml` refuses to start without `MERCURIO_DEPLOYMENT`, which only
 `.env.production` sets: a command typed in a checkout, where `.env` holds the development database
@@ -211,9 +213,13 @@ colleagues, each with an activation code to hand over ([ADR 0037](docs/adr/0037-
 
 Every new person receives a one-time activation code, from the browser or from the terminal. The person opens
 `<address>/mercurio/activate#<code>`, chooses a password, sets up an authenticator app and saves the
-recovery codes. There is no email reset: to recover an account, the operator issues a new code
-(`issue-code --email …`), which resets password and two-factor setup when used; `revoke-sessions`
-signs a person out everywhere.
+recovery codes. There is no email reset: to recover an account, the operator looks the person up
+by exact email in **Account recovery**, writes why and confirms with a fresh code of their own
+authenticator. The person's sessions close at once; the recovery code, valid 24 hours, resets
+password and two-factor setup when used. The person reads the reason in their account, and every
+customer they work for sees the recovery in its Activity
+([ADR 0039](docs/adr/0039-account-recovery-and-step-up.md)). An operator is recovered from the
+terminal only (`issue-code --email …`); `revoke-sessions` signs a person out everywhere.
 
 `deploy/nginx/mercurio.conf` holds the nginx locations; the container listens on `127.0.0.1:8001` only
 and the database is not exposed. Details in [ADR 0007](docs/adr/0007-continuous-delivery-github-actions.md).
@@ -233,13 +239,13 @@ and the database is not exposed. Details in [ADR 0007](docs/adr/0007-continuous-
 | 6     | Polish: overview charts, FatturaPA files, demo history, docs       | ✅     |
 | 7     | People, custom roles and companies managed by each customer        | ✅     |
 | 8a    | Platform operator: customers created and governed from the browser | ✅     |
+| 8b    | Companies, account recovery and operators from the browser         | ✅     |
 
 ## Possible next steps
 
 - Transmission to the exchange system through an accredited intermediary, keeping the files sent.
 - An outbox for events, if a module ever moves to a service of its own (ADR 0027).
-- More operators managed from the browser, and recovering an active account from it (today:
-  `grant-operator` and `issue-code` in the terminal); passkeys.
+- A second operator approving each account recovery, if operators become a team; passkeys.
 - An installable app (PWA), if working offline ever makes sense for a part of it.
 
 ## Out of scope, by choice
