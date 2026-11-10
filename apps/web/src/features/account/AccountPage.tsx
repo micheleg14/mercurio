@@ -54,6 +54,8 @@ const EVENT_TYPES = [
   'SESSIONS_REVOKED',
   'OPERATOR_GRANTED',
   'OPERATOR_REVOKED',
+  'ACTIVATION_CODE_ISSUED',
+  'TOTP_STEP_UP_FAILED',
 ] as const;
 
 function ChangePassword() {
@@ -251,10 +253,21 @@ export function AccountPage() {
                 key: 'type',
                 header: t('events.what'),
                 card: 'title',
-                cell: (row) =>
-                  (EVENT_TYPES as readonly string[]).includes(row.type)
-                    ? t(`events.type.${row.type as (typeof EVENT_TYPES)[number]}`)
-                    : row.type,
+                cell: (row) => (
+                  <span className="flex flex-col">
+                    <span>
+                      {(EVENT_TYPES as readonly string[]).includes(row.type)
+                        ? t(`events.type.${row.type as (typeof EVENT_TYPES)[number]}`)
+                        : row.type}
+                    </span>
+                    {/* What the operator wrote: the person is the one who reads it (ADR 0039). */}
+                    {row.reason && (
+                      <span className="text-muted-foreground text-xs">
+                        {t('events.reason', { reason: row.reason })}
+                      </span>
+                    )}
+                  </span>
+                ),
               },
               {
                 key: 'ip',

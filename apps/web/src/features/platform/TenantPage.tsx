@@ -1,5 +1,5 @@
 import { ArrowLeftIcon, KeyRoundIcon, PlusIcon } from 'lucide-react';
-import { type ReactNode, useState } from 'react';
+import { type ReactNode, useId, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Link, useLocation, useParams } from 'react-router';
 import {
@@ -12,9 +12,11 @@ import { FormField } from '@/components/shared/FormField';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
+import { NativeSelect, NativeSelectOption } from '@/components/ui/native-select';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Textarea } from '@/components/ui/textarea';
 import { ApiError } from '@/lib/api';
+import { countryOptions } from '@/lib/countries';
 import { useRoleLabel } from '@/lib/auth/role';
 import { formatInstantDate, formatTime } from '@/lib/format';
 import { ModuleSwitches } from './ModuleSwitches';
@@ -22,6 +24,7 @@ import {
   type Tenant,
   type TenantEvent,
   useAddAdmin,
+  useAddCompany,
   useIssueAdminCode,
   usePlatformModules,
   useRenameTenant,
@@ -496,8 +499,47 @@ function StatusCard({ tenant }: { tenant: Tenant }) {
   );
 }
 
+/** Error codes the API sends without a field, shown under the field they are about. */
+const COMPANY_CODE_FIELD: Record<string, string> = {
+  INVALID_COMPANY_NAME: 'legalName',
+  VAT_NUMBER_INVALID: 'vatNumber',
+  TAX_CODE_INVALID: 'taxCode',
+  COUNTRY_INVALID: 'country',
+};
+
+/**
+ * The companies of the customer, and a further one from here (docs/adr/0039) with the rules of
+ * the customer's administrator. Its letterhead (address, IBAN, logo) stays with them.
+ */
 function CompaniesCard({ tenant }: { tenant: Tenant }) {
-  const { t } = useTranslation('platform');
+  const { t, i18n } = useTranslation('platform');
+  const { t: tc } = useTranslation();
+  const { t: tError } = useTranslation('errors');
+  const add = useAddCompany(tenant.id);
+  const countryId = useId();
+  const [adding, setAdding] = useState(false);
+  const [added, setAdded] = useState<string | null>(null);
+  const [legalName, setLegalName] = useState('');
+  const [vatNumber, setVatNumber] = useState('');
+  const [taxCode, setTaxCode] = useState('');
+  const [country, setCountry] = useState('IT');
+
+  const problem = add.error instanceof ApiError ? add.error.problem : undefined;
+  const fieldError = (field: string) => {
+    const fromList = problem?.errors?.find((e) => e.field === field);
+    if (fromList) {
+      return tError(`validation.${fromList.code}` as never, {
+        defaultValue: tError(fromList.code as never),
+      });
+    }
+    if (problem?.code && COMPANY_CODE_FIELD[problem.code] === field) {
+      return tError(problem.code as never);
+    }
+    return undefined;
+  };
+  const explained =
+    Boolean(problem?.errors?.length) || Boolean(problem?.code && COMPANY_CODE_FIELD[problem.code]);
+
   return (
     <Card title={t('tenant.companies')} hint={t('tenant.companiesHint')}>
       <ul className="flex flex-col gap-1 text-sm">
@@ -511,6 +553,116 @@ function CompaniesCard({ tenant }: { tenant: Tenant }) {
           </li>
         ))}
       </ul>
+      {added && (
+        <p role="status" className="bg-muted rounded-lg px-3 py-2 text-sm">
+          {t('tenant.companyAdded', { name: added })}
+        </p>
+      )}
+      {adding ? (
+        <form
+          noValidate
+          className="flex flex-col gap-3"
+          onSubmit={(event) => {
+            event.preventDefault();
+            add.mutate(
+              { legalName, vatNumber, taxCode: taxCode || undefined, country },
+              {
+                onSuccess: () => {
+                  setAdded(legalName.trim());
+                  setAdding(false);
+                },
+              },
+            );
+          }}
+        >
+          <h3 className="text-sm font-medium">{t('tenant.addCompanyTitle')}</h3>
+          <div className="grid gap-3 sm:grid-cols-2">
+            <FormField label={t('create.legalName')} error={fieldError('legalName')}>
+              {(p) => (
+                <Input
+                  {...p}
+                  autoComplete="off"
+                  value={legalName}
+                  onChange={(event) => setLegalName(event.target.value)}
+                />
+              )}
+            </FormField>
+            <FormField label={t('create.vatNumber')} error={fieldError('vatNumber')}>
+              {(p) => (
+                <Input
+                  {...p}
+                  autoComplete="off"
+                  inputMode={country === 'IT' ? 'numeric' : undefined}
+                  value={vatNumber}
+                  onChange={(event) => setVatNumber(event.target.value)}
+                />
+              )}
+            </FormField>
+            <FormField
+              label={t('create.taxCode')}
+              hint={t('create.taxCodeHint')}
+              error={fieldError('taxCode')}
+            >
+              {(p) => (
+                <Input
+                  {...p}
+                  autoComplete="off"
+                  value={taxCode}
+                  onChange={(event) => setTaxCode(event.target.value)}
+                />
+              )}
+            </FormField>
+            <div className="flex flex-col gap-1.5">
+              <label htmlFor={countryId} className="text-sm font-medium">
+                {t('create.country')}
+              </label>
+              <NativeSelect
+                id={countryId}
+                value={country}
+                onChange={(event) => setCountry(event.target.value)}
+              >
+                {countryOptions(i18n.language).map((c) => (
+                  <NativeSelectOption key={c.code} value={c.code}>
+                    {c.name}
+                  </NativeSelectOption>
+                ))}
+              </NativeSelect>
+              {fieldError('country') && (
+                <p className="text-destructive text-xs">{fieldError('country')}</p>
+              )}
+            </div>
+          </div>
+          {!explained && <ErrorMessage error={add.error} />}
+          <p className="text-muted-foreground text-xs">{t('tenant.addCompanyHint')}</p>
+          <div className="flex justify-end gap-2">
+            <Button type="button" variant="outline" onClick={() => setAdding(false)}>
+              {tc('actions.cancel')}
+            </Button>
+            <Button type="submit" disabled={add.isPending}>
+              {t('tenant.add')}
+            </Button>
+          </div>
+        </form>
+      ) : (
+        <div>
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => {
+              add.reset();
+              setLegalName('');
+              setVatNumber('');
+              setTaxCode('');
+              setCountry('IT');
+              setAdded(null);
+              setAdding(true);
+            }}
+          >
+            <PlusIcon data-icon="inline-start" />
+            {t('tenant.addCompany')}
+          </Button>
+        </div>
+      )}
     </Card>
   );
 }
@@ -588,7 +740,10 @@ function describe(event: TenantEvent, t: Translate): string {
     case 'MEMBER_ADDED':
     case 'MEMBER_UPDATED':
     case 'ACTIVATION_CODE_ISSUED':
+    case 'MEMBER_RECOVERY_ISSUED':
       return t(`tenant.event.${event.type}`, { email: text('email') });
+    case 'COMPANY_ADDED':
+      return t('tenant.event.COMPANY_ADDED', { name: text('legalName') });
     default:
       return event.type;
   }

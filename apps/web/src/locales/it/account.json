@@ -49,7 +49,10 @@
       "ACCOUNT_RECOVERY_ISSUED": "Recupero dell'account avviato dall'operatore",
       "OPERATOR_GRANTED": "Ruolo di operatore della piattaforma concesso",
       "OPERATOR_REVOKED": "Ruolo di operatore della piattaforma revocato",
-      "SESSIONS_REVOKED": "Sessioni chiuse dall'operatore"
-    }
+      "SESSIONS_REVOKED": "Sessioni chiuse dall'operatore",
+      "ACTIVATION_CODE_ISSUED": "Codice di attivazione generato dall'operatore",
+      "TOTP_STEP_UP_FAILED": "Codice a due fattori errato in una conferma"
+    },
+    "reason": "Motivo: {{reason}}"
   }
 }

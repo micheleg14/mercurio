@@ -22,6 +22,8 @@ interface ActivationCodeDialogProps {
   open: boolean;
   name: string;
   code: ActivationCode | null;
+  /** A recovery code replaces a working account: other words, same handling (docs/adr/0039). */
+  kind?: 'activation' | 'recovery';
   onClose: () => void;
 }
 
@@ -31,8 +33,15 @@ interface ActivationCodeDialogProps {
  * ready to copy. The link carries the code after `#`, as the terminal commands print it: a
  * fragment never reaches the server, so it stays out of request logs.
  */
-export function ActivationCodeDialog({ open, name, code, onClose }: ActivationCodeDialogProps) {
+export function ActivationCodeDialog({
+  open,
+  name,
+  code,
+  kind = 'activation',
+  onClose,
+}: ActivationCodeDialogProps) {
   const { t, i18n } = useTranslation();
+  const text = kind === 'recovery' ? 'recoveryCode' : 'activationCode';
   const [copied, setCopied] = useState(false);
   // The last code shown stays while the dialog fades out, so it never empties before closing.
   const [last, setLast] = useState<{ name: string; code: ActivationCode } | null>(null);
@@ -43,7 +52,7 @@ export function ActivationCodeDialog({ open, name, code, onClose }: ActivationCo
     ? `${window.location.origin}${import.meta.env.BASE_URL}activate#${encodeURIComponent(shown.code.code)}`
     : '';
   const message = shown
-    ? t('activationCode.message', { name: shown.name, url, date, code: shown.code.code })
+    ? t(`${text}.message`, { name: shown.name, url, date, code: shown.code.code })
     : '';
 
   return (
@@ -58,12 +67,8 @@ export function ActivationCodeDialog({ open, name, code, onClose }: ActivationCo
     >
       <AlertDialogContent>
         <AlertDialogHeader>
-          <AlertDialogTitle>
-            {t('activationCode.title', { name: shown?.name ?? '' })}
-          </AlertDialogTitle>
-          <AlertDialogDescription>
-            {t('activationCode.description', { date })}
-          </AlertDialogDescription>
+          <AlertDialogTitle>{t(`${text}.title`, { name: shown?.name ?? '' })}</AlertDialogTitle>
+          <AlertDialogDescription>{t(`${text}.description`, { date })}</AlertDialogDescription>
         </AlertDialogHeader>
         <code
           data-testid="activation-code"
@@ -81,7 +86,7 @@ export function ActivationCodeDialog({ open, name, code, onClose }: ActivationCo
           {copied ? <CheckIcon data-icon="inline-start" /> : <CopyIcon data-icon="inline-start" />}
           {copied ? t('activationCode.copied') : t('activationCode.copy')}
         </Button>
-        <p className="text-muted-foreground text-xs">{t('activationCode.closeHint')}</p>
+        <p className="text-muted-foreground text-xs">{t(`${text}.closeHint`)}</p>
         <AlertDialogFooter>
           <AlertDialogAction
             onClick={() => {
