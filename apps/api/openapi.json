@@ -84,6 +84,9 @@
               "enum": [
                 "TENANT_SELECTED",
                 "TENANT_CREATED",
+                "TENANT_RENAMED",
+                "TENANT_SUSPENDED",
+                "TENANT_REACTIVATED",
                 "MEMBER_ADDED",
                 "MEMBER_UPDATED",
                 "MEMBER_REMOVED",
