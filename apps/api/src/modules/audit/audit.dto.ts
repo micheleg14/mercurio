@@ -63,6 +63,12 @@ export class AuthEventDto {
   @ApiProperty({ example: 'LOGIN_SUCCEEDED' }) type!: string;
   @ApiPropertyOptional({ type: String, nullable: true }) ip!: string | null;
   @ApiPropertyOptional({ type: String, nullable: true }) userAgent!: string | null;
+  @ApiProperty({
+    type: String,
+    nullable: true,
+    description: 'Why the platform operator acted (recovery, revoked grant)',
+  })
+  reason!: string | null;
 }
 
 export class AuthEventPageDto {

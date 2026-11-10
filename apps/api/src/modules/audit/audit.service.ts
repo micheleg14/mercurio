@@ -102,10 +102,20 @@ export class AuditService {
         type: e.type,
         ip: e.ip,
         userAgent: e.userAgent,
+        reason: reasonOf(e.details),
       })),
       total,
       page: query.page,
       pageSize: query.pageSize,
     };
   }
+}
+
+/**
+ * The reason an operator wrote, for the events that carry one (a recovery, a revoked grant): the
+ * person reads it in their account (docs/adr/0039). Nothing else of the details leaves.
+ */
+function reasonOf(details: unknown): string | null {
+  const reason = (details as { reason?: unknown } | null)?.reason;
+  return typeof reason === 'string' ? reason : null;
 }

@@ -91,6 +91,7 @@
                 "MEMBER_UPDATED",
                 "MEMBER_REMOVED",
                 "ACTIVATION_CODE_ISSUED",
+                "MEMBER_RECOVERY_ISSUED",
                 "ROLE_CREATED",
                 "ROLE_UPDATED",
                 "ROLE_ARCHIVED",
@@ -1591,6 +1592,275 @@
           }
         ],
         "summary": "A new activation code for an administrator not yet activated",
+        "tags": [
+          "platform"
+        ]
+      }
+    },
+    "/platform/tenants/{id}/companies": {
+      "post": {
+        "operationId": "PlatformController_addCompany",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/NewCompanyDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PlatformTenantDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Add a further company to the tenant",
+        "tags": [
+          "platform"
+        ]
+      }
+    },
+    "/platform/people/lookup": {
+      "post": {
+        "operationId": "PlatformController_lookupPerson",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/LookupPersonDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PlatformPersonDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "The person with exactly this email (never a list)",
+        "tags": [
+          "platform"
+        ]
+      }
+    },
+    "/platform/people/{userId}/recovery-code": {
+      "post": {
+        "operationId": "PlatformController_issueRecoveryCode",
+        "parameters": [
+          {
+            "name": "userId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/RecoveryCodeRequestDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PlatformActivationCodeDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "A recovery code for an activated account; asks for a fresh one-time code",
+        "tags": [
+          "platform"
+        ]
+      }
+    },
+    "/platform/operators": {
+      "get": {
+        "operationId": "PlatformController_listOperators",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/PlatformOperatorDto"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Platform operators, current and revoked",
+        "tags": [
+          "platform"
+        ]
+      },
+      "post": {
+        "operationId": "PlatformController_grantOperator",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/GrantOperatorDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GrantedOperatorDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Make a person a platform operator; asks for a fresh one-time code",
+        "tags": [
+          "platform"
+        ]
+      }
+    },
+    "/platform/operators/{userId}/revoke": {
+      "post": {
+        "operationId": "PlatformController_revokeOperator",
+        "parameters": [
+          {
+            "name": "userId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/RevokeOperatorDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "204": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Revoke another operator; asks for a fresh one-time code",
+        "tags": [
+          "platform"
+        ]
+      }
+    },
+    "/platform/operators/{userId}/activation-code": {
+      "post": {
+        "operationId": "PlatformController_issueOperatorCode",
+        "parameters": [
+          {
+            "name": "userId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PlatformActivationCodeDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "A new activation code for an operator not yet activated",
         "tags": [
           "platform"
         ]
@@ -6727,12 +6997,18 @@
           "userAgent": {
             "type": "string",
             "nullable": true
+          },
+          "reason": {
+            "type": "string",
+            "nullable": true,
+            "description": "Why the platform operator acted (recovery, revoked grant)"
           }
         },
         "required": [
           "id",
           "at",
-          "type"
+          "type",
+          "reason"
         ]
       },
       "AuthEventPageDto": {
@@ -7822,6 +8098,287 @@
           "activation",
           "existingAccount",
           "promoted"
+        ]
+      },
+      "LookupPersonDto": {
+        "type": "object",
+        "properties": {
+          "email": {
+            "type": "string",
+            "example": "laura.verdi@example.com",
+            "description": "The exact email"
+          }
+        },
+        "required": [
+          "email"
+        ]
+      },
+      "PlatformPersonMembershipDto": {
+        "type": "object",
+        "properties": {
+          "tenantId": {
+            "type": "string"
+          },
+          "tenantName": {
+            "type": "string"
+          },
+          "slug": {
+            "type": "string"
+          },
+          "tenantStatus": {
+            "type": "string",
+            "enum": [
+              "ACTIVE",
+              "SUSPENDED"
+            ]
+          },
+          "role": {
+            "type": "string",
+            "nullable": true,
+            "example": "ADMIN",
+            "description": "A built-in role, or null for a role of the tenant"
+          },
+          "customRole": {
+            "type": "string",
+            "nullable": true,
+            "description": "The name of a role of the tenant"
+          }
+        },
+        "required": [
+          "tenantId",
+          "tenantName",
+          "slug",
+          "tenantStatus",
+          "role",
+          "customRole"
+        ]
+      },
+      "PlatformPersonDto": {
+        "type": "object",
+        "properties": {
+          "userId": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          },
+          "email": {
+            "type": "string"
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "ACTIVE",
+              "DISABLED"
+            ]
+          },
+          "activated": {
+            "type": "boolean",
+            "description": "False while the person has not activated the account"
+          },
+          "operator": {
+            "type": "boolean",
+            "description": "An active platform operator"
+          },
+          "self": {
+            "type": "boolean",
+            "description": "The operator asking"
+          },
+          "lastSeenAt": {
+            "type": "string",
+            "nullable": true,
+            "description": "Last use of any session"
+          },
+          "memberships": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/PlatformPersonMembershipDto"
+            }
+          },
+          "recoveryBlocked": {
+            "type": "string",
+            "enum": [
+              "SELF",
+              "IS_OPERATOR",
+              "NOT_ACTIVATED",
+              "NO_MEMBERSHIP",
+              "DISABLED"
+            ],
+            "nullable": true,
+            "description": "Why a recovery code cannot be issued from the browser; null when it can"
+          }
+        },
+        "required": [
+          "userId",
+          "name",
+          "email",
+          "status",
+          "activated",
+          "operator",
+          "self",
+          "lastSeenAt",
+          "memberships",
+          "recoveryBlocked"
+        ]
+      },
+      "RecoveryCodeRequestDto": {
+        "type": "object",
+        "properties": {
+          "totpCode": {
+            "type": "string",
+            "example": "123456",
+            "description": "A fresh code of the operator's authenticator (403 INVALID_TOTP_CODE when wrong or already used)"
+          },
+          "reason": {
+            "type": "string",
+            "description": "Why: read by the person in their account, never by the tenants"
+          }
+        },
+        "required": [
+          "totpCode",
+          "reason"
+        ]
+      },
+      "PlatformOperatorDto": {
+        "type": "object",
+        "properties": {
+          "grantId": {
+            "type": "string"
+          },
+          "userId": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          },
+          "email": {
+            "type": "string"
+          },
+          "activated": {
+            "type": "boolean"
+          },
+          "canIssueCode": {
+            "type": "boolean",
+            "description": "A new activation code can be issued from the browser"
+          },
+          "self": {
+            "type": "boolean",
+            "description": "The operator asking"
+          },
+          "lastSeenAt": {
+            "type": "string",
+            "nullable": true
+          },
+          "grantedAt": {
+            "type": "string"
+          },
+          "grantedByName": {
+            "type": "string",
+            "nullable": true,
+            "description": "Empty when granted from the terminal"
+          },
+          "revokedAt": {
+            "type": "string",
+            "nullable": true
+          },
+          "revokedByName": {
+            "type": "string",
+            "nullable": true
+          },
+          "revokeReason": {
+            "type": "string",
+            "nullable": true
+          }
+        },
+        "required": [
+          "grantId",
+          "userId",
+          "name",
+          "email",
+          "activated",
+          "canIssueCode",
+          "self",
+          "lastSeenAt",
+          "grantedAt",
+          "grantedByName",
+          "revokedAt",
+          "revokedByName",
+          "revokeReason"
+        ]
+      },
+      "GrantOperatorDto": {
+        "type": "object",
+        "properties": {
+          "totpCode": {
+            "type": "string",
+            "example": "123456",
+            "description": "A fresh code of the operator's authenticator (403 INVALID_TOTP_CODE when wrong or already used)"
+          },
+          "email": {
+            "type": "string",
+            "example": "giulia.neri@example.com"
+          },
+          "name": {
+            "type": "string",
+            "description": "Needed only when the email has no identity yet"
+          },
+          "confirmExisting": {
+            "type": "boolean",
+            "description": "Confirms granting the role to a person who works for tenants (409 OPERATOR_EXISTING_MEMBER otherwise)"
+          }
+        },
+        "required": [
+          "totpCode",
+          "email"
+        ]
+      },
+      "GrantedOperatorDto": {
+        "type": "object",
+        "properties": {
+          "userId": {
+            "type": "string"
+          },
+          "activation": {
+            "nullable": true,
+            "type": "object",
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/PlatformActivationCodeDto"
+              }
+            ]
+          },
+          "existingAccount": {
+            "type": "boolean",
+            "description": "The person already had a Mercurio account"
+          }
+        },
+        "required": [
+          "userId",
+          "activation",
+          "existingAccount"
+        ]
+      },
+      "RevokeOperatorDto": {
+        "type": "object",
+        "properties": {
+          "totpCode": {
+            "type": "string",
+            "example": "123456",
+            "description": "A fresh code of the operator's authenticator (403 INVALID_TOTP_CODE when wrong or already used)"
+          },
+          "reason": {
+            "type": "string",
+            "description": "Why: kept with the grant"
+          },
+          "closeSessions": {
+            "type": "boolean",
+            "description": "Sign the person out everywhere too",
+            "default": false
+          }
+        },
+        "required": [
+          "totpCode",
+          "reason"
         ]
       },
       "PartyKind": {

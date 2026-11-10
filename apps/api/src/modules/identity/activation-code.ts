@@ -1,6 +1,8 @@
 import { createHash, randomBytes } from 'node:crypto';
 
 export const ACTIVATION_CODE_DAYS = 7;
+/** A recovery code replaces an account that works: it lasts one day (docs/adr/0039). */
+export const RECOVERY_CODE_DAYS = 1;
 
 /**
  * A one-time activation code: 256 random bits, shown once to whoever creates the user. Only its

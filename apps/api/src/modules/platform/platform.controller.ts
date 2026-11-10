@@ -10,22 +10,33 @@ import {
   Post,
   Put,
   Query,
+  Req,
 } from '@nestjs/common';
+import type { Request } from 'express';
 import {
   ApiBearerAuth,
   ApiCreatedResponse,
+  ApiNoContentResponse,
   ApiOkResponse,
   ApiOperation,
   ApiTags,
 } from '@nestjs/swagger';
 import { PageQuery } from '../../shared/pagination.js';
-import { RequiresPlatformOperator } from '../auth/index.js';
+import { requestMeta, RequiresPlatformOperator } from '../auth/index.js';
 import {
   AddAdminDto,
   AddedAdminDto,
   CreatedTenantDto,
   CreateTenantDto,
+  GrantedOperatorDto,
+  GrantOperatorDto,
+  LookupPersonDto,
+  NewCompanyDto,
   PlatformActivationCodeDto,
+  PlatformOperatorDto,
+  PlatformPersonDto,
+  RecoveryCodeRequestDto,
+  RevokeOperatorDto,
   PlatformEventPageDto,
   PlatformModuleDto,
   PlatformTenantDto,
@@ -144,5 +155,70 @@ export class PlatformController {
     @Param('userId', id) userId: string,
   ): Promise<PlatformActivationCodeDto> {
     return this.platform.issueAdminCode(tenantId, userId);
+  }
+
+  @Post('tenants/:id/companies')
+  @ApiOperation({ summary: 'Add a further company to the tenant' })
+  @ApiCreatedResponse({ type: PlatformTenantDto })
+  addCompany(
+    @Param('id', id) tenantId: string,
+    @Body() dto: NewCompanyDto,
+  ): Promise<PlatformTenantDto> {
+    return this.platform.addCompany(tenantId, dto);
+  }
+
+  // A POST, not a GET with the email in the query string: URLs end up in the server logs.
+  @Post('people/lookup')
+  @HttpCode(HttpStatus.OK)
+  @ApiOperation({ summary: 'The person with exactly this email (never a list)' })
+  @ApiOkResponse({ type: PlatformPersonDto })
+  lookupPerson(@Body() dto: LookupPersonDto): Promise<PlatformPersonDto> {
+    return this.platform.findPerson(dto.email);
+  }
+
+  @Post('people/:userId/recovery-code')
+  @ApiOperation({
+    summary: 'A recovery code for an activated account; asks for a fresh one-time code',
+  })
+  @ApiCreatedResponse({ type: PlatformActivationCodeDto })
+  issueRecoveryCode(
+    @Param('userId', id) userId: string,
+    @Body() dto: RecoveryCodeRequestDto,
+    @Req() req: Request,
+  ): Promise<PlatformActivationCodeDto> {
+    return this.platform.issueRecoveryCode(userId, dto, requestMeta(req));
+  }
+
+  @Get('operators')
+  @ApiOperation({ summary: 'Platform operators, current and revoked' })
+  @ApiOkResponse({ type: [PlatformOperatorDto] })
+  listOperators(): Promise<PlatformOperatorDto[]> {
+    return this.platform.listOperators();
+  }
+
+  @Post('operators')
+  @ApiOperation({ summary: 'Make a person a platform operator; asks for a fresh one-time code' })
+  @ApiCreatedResponse({ type: GrantedOperatorDto })
+  grantOperator(@Body() dto: GrantOperatorDto, @Req() req: Request): Promise<GrantedOperatorDto> {
+    return this.platform.grantOperator(dto, requestMeta(req));
+  }
+
+  @Post('operators/:userId/revoke')
+  @HttpCode(HttpStatus.NO_CONTENT)
+  @ApiOperation({ summary: 'Revoke another operator; asks for a fresh one-time code' })
+  @ApiNoContentResponse()
+  revokeOperator(
+    @Param('userId', id) userId: string,
+    @Body() dto: RevokeOperatorDto,
+    @Req() req: Request,
+  ): Promise<void> {
+    return this.platform.revokeOperator(userId, dto, requestMeta(req));
+  }
+
+  @Post('operators/:userId/activation-code')
+  @ApiOperation({ summary: 'A new activation code for an operator not yet activated' })
+  @ApiCreatedResponse({ type: PlatformActivationCodeDto })
+  issueOperatorCode(@Param('userId', id) userId: string): Promise<PlatformActivationCodeDto> {
+    return this.platform.issueOperatorCode(userId);
   }
 }

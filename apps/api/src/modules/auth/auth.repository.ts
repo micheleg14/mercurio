@@ -62,6 +62,15 @@ export class AuthRepository {
     return db.credential.findUnique({ where: { userId } });
   }
 
+  /**
+   * The credential, locked until the end of the transaction: two requests with the same one-time
+   * code are served one after the other, and the second sees the step already used.
+   */
+  async lockCredential(db: DbClient, userId: string) {
+    await db.$queryRaw`SELECT 1 FROM credentials WHERE user_id = ${userId}::uuid FOR UPDATE`;
+    return this.getCredential(db, userId);
+  }
+
   updateCredential(db: DbClient, userId: string, data: Prisma.CredentialUpdateInput) {
     return db.credential.update({ where: { userId }, data });
   }

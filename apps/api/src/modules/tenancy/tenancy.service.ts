@@ -46,6 +46,14 @@ export class TenancyService {
     };
   }
 
+  /**
+   * A further company, checked and normalized without writing it: the platform operator adds it
+   * through the database (docs/adr/0039) with the rules of the tenant administrator.
+   */
+  prepareCompany(input: CompanyInput) {
+    return this.normalizeCompany(input);
+  }
+
   /** A tenant name as it is stored (the platform operator renames tenants). */
   normalizeTenantName(name: string): string {
     return normalizeName(name);
