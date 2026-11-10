@@ -98,8 +98,17 @@ export default function globalSetup(): void {
       invoicingDesktop: warehouseTenant('id', '1056789012', 'registry,warehouse,orders,invoicing'),
       // People, roles and companies (phase 7): an administrator who sets up their customer.
       members: warehouseTenant('mb', '1167890123', 'registry,warehouse'),
+      // The platform operator (phase 8a), granted from the terminal as at installation.
+      operator: platformOperator(run),
     }),
   );
+}
+
+/** A new platform operator with its activation code, as `grant-operator` prints it. */
+function platformOperator(run: string) {
+  const email = `browser-operator-${run}@example.com`;
+  const output = cli('grant-operator', '--email', email, '--name', 'Operatrice Browser');
+  return { email, code: activationCode(output) };
 }
 
 /** The activation code printed by create-tenant (shown once, as to an operator). */

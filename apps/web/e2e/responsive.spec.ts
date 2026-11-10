@@ -11,7 +11,7 @@ import { expectAccessible } from './axe.js';
 const DEMO_PASSWORD = 'Demo-password-2026';
 const DEMO_TOTP_SECRET = 'JBSWY3DPEHPK3PXPJBSWY3DPEHPK3PXP';
 
-async function signInAs(page: Page, email: string) {
+async function signInAs(page: Page, email: string, landing: RegExp = /^Ciao/) {
   await page.goto('/mercurio/login');
   await page.getByLabel('Email').fill(email);
   await page.getByLabel('Password').fill(DEMO_PASSWORD);
@@ -20,7 +20,7 @@ async function signInAs(page: Page, email: string) {
     .getByLabel('Codice')
     .fill(new TOTP({ secret: Secret.fromBase32(DEMO_TOTP_SECRET) }).generate());
   await page.getByRole('button', { name: 'Verifica' }).click();
-  await expect(page.getByRole('heading', { name: /^Ciao/ })).toBeVisible();
+  await expect(page.getByRole('heading', { name: landing })).toBeVisible();
 }
 
 /** A picture of the screen for the CI artifact "responsive-screens", to look at the layout. */
@@ -209,6 +209,24 @@ test('@phone a purchase order written and received from the phone', async ({ pag
   await expect(page.getByRole('table')).toHaveCount(0);
   await expectNoHorizontalScroll(page);
   await snap(page, '10-orders');
+});
+
+// The platform area on a phone (phase 8a), with the operator of the demo seed: the customers as
+// cards, a customer's page in one column.
+test('@phone the platform area: customers as cards, a customer in one column', async ({ page }) => {
+  await signInAs(page, 'operatore@example.com', /^Clienti$/);
+  // Test runs add customers of their own: search, so the demo one is on the first page.
+  await page.getByLabel('Cerca per nome o identificativo').fill('rossi');
+  await expect(page.getByRole('link', { name: 'Gruppo Rossi' })).toBeVisible();
+  await expectNoHorizontalScroll(page);
+  await snap(page, 'platform-1-list');
+
+  await page.getByRole('link', { name: 'Gruppo Rossi' }).click();
+  await expect(page.getByRole('heading', { name: 'Gruppo Rossi' })).toBeVisible();
+  await expect(page.getByRole('heading', { name: 'Amministratori' })).toBeVisible();
+  await expectNoHorizontalScroll(page);
+  await expectAccessible(page, 'platform customer on a phone');
+  await snap(page, 'platform-2-tenant');
 });
 
 test('@tablet icons-only sidebar, the table without secondary columns', async ({ page }) => {

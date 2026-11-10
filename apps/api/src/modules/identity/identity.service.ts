@@ -305,6 +305,16 @@ export class IdentityService {
     return { grantId: grant.id, userId: person.userId, email, identityCreated: person.created };
   }
 
+  /** The person is an operator afterwards: granted if they were not (the demo seed). */
+  async ensurePlatformOperator(db: DbClient, input: { email: string; name: string }) {
+    const user = await this.repository.findUserByEmail(db, normalizeEmail(input.email));
+    if (user && (await this.repository.findOpenOperatorGrant(db, user.id))) {
+      return { userId: user.id, granted: false };
+    }
+    const grant = await this.grantPlatformOperator(db, input);
+    return { userId: grant.userId, granted: true };
+  }
+
   /** Closes the open grant of a person; the row stays as history. */
   async revokePlatformOperator(db: DbClient, input: { email: string; reason: string }) {
     const email = normalizeEmail(input.email);
