@@ -12,7 +12,6 @@ import { Link, Outlet, useLocation, useNavigate } from 'react-router';
 import { BrandMark } from '@/components/shared/BrandMark';
 import { LanguageToggle } from '@/components/shared/LanguageToggle';
 import { ThemeToggle } from '@/components/shared/ThemeToggle';
-import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import {
   Sidebar,
@@ -66,15 +65,6 @@ function PlatformSidebar() {
   );
 }
 
-function AreaLabel() {
-  const { t } = useTranslation('platform');
-  return (
-    <Badge variant="secondary" className="group-data-[collapsible=icon]:hidden">
-      {t('area')}
-    </Badge>
-  );
-}
-
 function SidebarBody({ panel = false }: { panel?: boolean }) {
   const { t } = useTranslation();
   const { t: tp } = useTranslation('platform');
@@ -91,10 +81,11 @@ function SidebarBody({ panel = false }: { panel?: boolean }) {
       <SidebarHeader className="flex-row items-center justify-between gap-2 group-data-[collapsible=icon]:flex-col">
         <div className="flex min-w-0 items-center gap-2.5 px-1 py-1">
           <BrandMark />
-          <span className="truncate font-semibold tracking-tight group-data-[collapsible=icon]:hidden">
-            {t('app.name')}
+          {/* The area under the name, not beside it: the name keeps its whole width. */}
+          <span className="flex min-w-0 flex-col leading-tight group-data-[collapsible=icon]:hidden">
+            <span className="truncate font-semibold tracking-tight">{t('app.name')}</span>
+            <span className="text-muted-foreground truncate text-xs">{tp('area')}</span>
           </span>
-          <AreaLabel />
         </div>
         {panel ? (
           <Button variant="ghost" size="icon" aria-label={t('actions.close')} onClick={closePanel}>

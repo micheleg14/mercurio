@@ -8,7 +8,7 @@
   "modules": {
     "registry": {
       "name": "Anagrafiche",
-      "description": "Soggetti, articoli e aziende. Sempre attivo: è la base degli altri moduli."
+      "description": "Soggetti, articoli e aziende: la base degli altri moduli."
     },
     "warehouse": {
       "name": "Magazzino",
