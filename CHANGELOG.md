@@ -5,6 +5,45 @@ All notable changes to this project are documented here. The format follows
 [Semantic Versioning](https://semver.org/). Each phase of the [roadmap](README.md#roadmap) ends with
 a release.
 
+## [1.2.0] - 2026-11-10
+
+Phase 8a: a new customer is created and governed from the browser.
+
+### Added
+
+- **Platform area** (`/platform`) for the platform operator, who belongs to no customer: the list
+  of customers with search and status filter, and a new customer in one go (first company,
+  modules, first administrator, whose activation code is shown once).
+- **A customer's page**: rename, switch modules on and off with their dependencies explained,
+  add an administrator (a member with another role after confirmation), issue a new code to one
+  not yet activated, suspend and reactivate with a reason, the history of operator actions.
+- Terminal commands `grant-operator` (the first operator, at installation), `revoke-operator` and
+  `list-operators`.
+- An operator who is also a member finds the area when choosing a customer and in the user menu.
+- Demo: the platform operator `operatore@example.com`, outside production.
+
+### Changed
+
+- People of a suspended customer see it listed, not choosable; signing in with suspended customers
+  only says so instead of "no customer".
+- The activity log names operator actions as the Mercurio operator, and knows renamed, suspended
+  and reactivated customers.
+- The window with an activation code is shared by People and the platform area.
+
+### Fixed
+
+- On module routes, a suspended customer answered 401, which the interface takes for an expired
+  session: it now answers 403 `TENANT_SUSPENDED`, because the module check runs after sign-in is
+  checked.
+
+### Security
+
+- Operators are a table of their own, never a role in a customer. The API role gains no table
+  privilege: every operator action goes through a database function that checks the operator
+  itself, and records the action in the customer's audit log.
+- The operator reads configuration only (name, status, modules, companies, administrators), never
+  parties, stock, orders or invoices. A revocation takes effect at the next request.
+
 ## [1.1.2] - 2026-11-06
 
 ### Fixed
