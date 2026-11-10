@@ -234,6 +234,7 @@ test('@phone the platform area: customers as cards, a customer in one column', a
     .getByRole('dialog', { name: 'Menu principale' })
     .getByRole('link', { name: 'Recupero account' })
     .click();
+  await expect(page.getByRole('dialog', { name: 'Menu principale' })).toBeHidden();
   await page.getByLabel('Email').fill('marco.verdi@example.com');
   await page.getByRole('button', { name: 'Cerca' }).click();
   await expect(page.getByRole('button', { name: 'Genera codice di recupero' })).toBeVisible();
@@ -246,6 +247,7 @@ test('@phone the platform area: customers as cards, a customer in one column', a
     .getByRole('dialog', { name: 'Menu principale' })
     .getByRole('link', { name: 'Operatori' })
     .click();
+  await expect(page.getByRole('dialog', { name: 'Menu principale' })).toBeHidden();
   await expect(page.getByRole('heading', { name: 'Operatori' })).toBeVisible();
   await expect(page.getByRole('table')).toHaveCount(0);
   await expectNoHorizontalScroll(page);

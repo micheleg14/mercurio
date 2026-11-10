@@ -16,6 +16,7 @@ import { Checkbox } from '@/components/ui/checkbox';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { ApiError } from '@/lib/api';
+import { useBreakpoint } from '@/lib/breakpoint';
 import { formatInstantDate } from '@/lib/format';
 import {
   type PlatformOperator,
@@ -43,6 +44,7 @@ export function OperatorsPage() {
   const active = all.filter((o) => !o.revokedAt);
   const revoked = all.filter((o) => o.revokedAt);
   const date = (value: string) => formatInstantDate(value, i18n.language);
+  const phone = useBreakpoint() === 'phone';
 
   return (
     <div className="flex flex-col gap-6">
@@ -98,7 +100,15 @@ export function OperatorsPage() {
             header: t('operators.lastSeen'),
             card: 'detail',
             tablet: false,
-            cell: (row) => (row.lastSeenAt ? date(row.lastSeenAt) : t('operators.never')),
+            // On a phone the cards have no headers: the date says what it is.
+            cell: (row) =>
+              phone
+                ? row.lastSeenAt
+                  ? t('tenant.lastSeen', { date: date(row.lastSeenAt) })
+                  : t('operators.neverSignedIn')
+                : row.lastSeenAt
+                  ? date(row.lastSeenAt)
+                  : t('operators.never'),
           },
           {
             key: 'granted',
