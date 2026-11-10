@@ -92,7 +92,10 @@ test('companies, account recovery and operators from the platform area', async (
     const again = await againContext.newPage();
     await activateAndEnter(again, code);
     await again.getByRole('link', { name: 'Attività' }).click();
-    await expect(again.getByText("Codice di recupero dell'account generato").first()).toBeVisible();
+    // In the table, not in the type filter, whose options carry the same words.
+    await expect(
+      again.getByRole('table').getByText("Codice di recupero dell'account generato").first(),
+    ).toBeVisible();
     await againContext.close();
   });
 

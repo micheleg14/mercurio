@@ -55,6 +55,10 @@ export default defineConfig({
       APP_BASE_PATH: '/mercurio',
       WEB_DIST_PATH: resolve('dist'),
       LOG_LEVEL: 'warn',
+      // Every flow activates new people from the same address, side by side: the production limit
+      // (10 a minute per sign-in route) would refuse some of them. The limit itself is tested by
+      // the API (auth-rate-limit.e2e-spec.ts).
+      AUTH_RATE_LIMIT_PER_MINUTE: '100',
     },
   },
 });
