@@ -196,8 +196,32 @@ sequenceDiagram
   again closes the session.
 - Sign-in, activation and refresh happen before the API knows who is calling, so they go through
   three reviewed `SECURITY DEFINER` functions; everything else runs under Row-Level Security.
-- Recovery without email: the operator issues a new activation code (`issue-code`), which resets the
-  password and the two-factor setup when used; `revoke-sessions` signs a person out everywhere.
+- Recovery without email: the operator issues a recovery code from the browser
+  ([ADR 0039](adr/0039-account-recovery-and-step-up.md)), which resets the password and the
+  two-factor setup when used; `revoke-sessions` signs a person out everywhere.
+
+### Account recovery
+
+```mermaid
+sequenceDiagram
+    actor O as Operator
+    participant A as API
+    participant D as PostgreSQL
+    actor P as Person
+    O->>A: POST /platform/people/lookup (exact email)
+    A->>D: app_platform_find_person
+    A-->>O: name, last sign-in, customers and roles
+    O->>A: POST /platform/people/:id/recovery-code (reason, fresh TOTP code)
+    A->>D: lock the operator's credentials, check the code (in the API)
+    A->>D: app_platform_issue_recovery_code, same transaction
+    Note over D: sessions of the person closed, code stored as a hash,<br/>reason in their security events,<br/>MEMBER_RECOVERY_ISSUED in each of their tenants
+    A-->>O: the code, shown once (24 hours)
+    O-->>P: hands it over on another channel
+    P->>A: POST /auth/activate: new password, new authenticator
+```
+
+A wrong code answers `403` and is counted like a failed sign-in; an action refused by its function
+rolls back the use of the code. An operator is never recovered from the browser.
 
 ## Modules
 

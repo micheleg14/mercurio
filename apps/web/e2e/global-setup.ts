@@ -100,6 +100,12 @@ export default function globalSetup(): void {
       members: warehouseTenant('mb', '1167890123', 'registry,warehouse'),
       // The platform operator (phase 8a), granted from the terminal as at installation.
       operator: platformOperator(run),
+      // Phase 8b: another operator, and a customer whose administrator will lose access.
+      recoveryOperator: platformOperator(`rc-${run}`),
+      recoveryTenant: {
+        slug: `browser-rc-${run}`,
+        ...warehouseTenant('rc', '1278901234', 'registry,warehouse'),
+      },
     }),
   );
 }

@@ -70,3 +70,4 @@ Each option and why it was not chosen.
 | [0036](0036-custom-roles-per-tenant.md) | Custom roles per tenant, built-in roles in code | Accepted |
 | [0037](0037-tenant-administration-of-people.md) | Tenant administrators manage people and companies from the interface | Accepted |
 | [0038](0038-platform-operator.md) | A platform operator configures customers from the browser, through narrow functions | Accepted |
+| [0039](0039-account-recovery-and-step-up.md) | Account recovery and operators from the browser, behind a fresh one-time code | Accepted |

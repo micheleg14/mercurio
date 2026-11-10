@@ -1,6 +1,6 @@
 # 0038. A platform operator configures customers from the browser, through narrow functions
 
-- Status: Accepted
+- Status: Accepted, updated by [0039](0039-account-recovery-and-step-up.md)
 - Date: 2026-11-10
 
 ## Context
