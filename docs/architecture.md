@@ -120,6 +120,7 @@ erDiagram
 | `recovery_codes`       | platform | One-time two-factor recovery codes, as hashes                            |
 | `sessions`             | platform | Signed-in browsers: refresh token hash, chosen tenant, expiry            |
 | `auth_events`          | platform | Security events of a person (append-only)                                |
+| `platform_operators`   | platform | Who may configure tenants from the browser; revoked rows stay            |
 | `audit_events`         | tenant   | What happened in a tenant, who did it (append-only)                      |
 | `parties`              | tenant   | Customers and suppliers, shared by the companies; one active per VAT no. |
 | `items`                | tenant   | Goods and services; code unique regardless of case and never changed     |
@@ -136,9 +137,12 @@ erDiagram
 3. Platform tables follow the memberships: a person sees their own active memberships in every
    tenant (to pick one at sign-in) but changes data only in the current one; people are visible only
    to tenants they belong to.
-4. The tables of a person (`credentials`, `recovery_codes`, `sessions`, `auth_events`) are visible only
-   to that person (`user_id = app_user_id()`).
-5. The API role (`mercurio_app`) gets privileges per table, and for updates per column, only when a
+4. The tables of a person (`credentials`, `recovery_codes`, `sessions`, `auth_events`,
+   `platform_operators`) are visible only to that person (`user_id = app_user_id()`).
+5. The platform operator reaches every tenant without any of this changing: only through the
+   `app_platform_*` functions, which check the operator first and read configuration data only
+   ([ADR 0038](adr/0038-platform-operator.md)).
+6. The API role (`mercurio_app`) gets privileges per table, and for updates per column, only when a
    feature needs them; a test lists every write privilege. A guard test fails CI if a table with
    `tenant_id` lacks the protection or any other table lacks Row-Level Security, and the isolation
    tests run as the API role.
@@ -200,7 +204,7 @@ sequenceDiagram
 ```mermaid
 flowchart TB
     subgraph web[apps/web]
-        ui[Feature screens<br/>status · auth · registry · warehouse · orders · invoicing]
+        ui[Feature screens<br/>status · auth · registry · warehouse · orders · invoicing · members · platform]
     end
 
     subgraph api[apps/api]
@@ -209,6 +213,8 @@ flowchart TB
         identity[identity<br/>people · memberships]
         auth[auth<br/>sign-in · sessions · guards]
         audit[audit<br/>security and tenant events]
+        members[members<br/>people and roles of a tenant]
+        platform[platform<br/>the operator's customers]
         registry[registry<br/>parties · items · catalogs]
         warehouse[warehouse<br/>warehouses · documents · stock]
         orders[orders<br/>purchase and sales orders · fulfilments]
@@ -221,6 +227,10 @@ flowchart TB
     auth -- public services --> identity
     auth -- public services --> tenancy
     auth -- public service --> audit
+    members -- public services --> identity
+    members -- public service --> audit
+    platform -- public services --> auth
+    platform -- public service, app_platform_* functions --> tenancy
     registry -- public service --> audit
     warehouse -- public service, views --> registry
     warehouse -- public service --> audit
@@ -235,7 +245,7 @@ flowchart TB
 
 The dotted arrow is an event: invoicing knows the events of orders (`orders/events.ts`) and nothing
 else of them, and orders do not know invoicing exists. The API has the modules `tenancy`,
-`identity`, `auth`, `audit`, `registry`, `warehouse`, `orders` and `invoicing` (in
+`identity`, `auth`, `audit`, `members`, `platform`, `registry`, `warehouse`, `orders` and `invoicing` (in
 `src/modules/`), `health`, the technical modules `config`, `prisma` and `web`, and the terminal
 commands in `src/cli/`.
 

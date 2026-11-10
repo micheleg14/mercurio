@@ -1,6 +1,6 @@
 # 0008. Multi-tenancy with a shared database and Row-Level Security
 
-- Status: Accepted
+- Status: Accepted; updated by [0038](0038-platform-operator.md)
 - Date: 2026-10-20
 
 ## Context

@@ -1,6 +1,6 @@
 # 0014. Authorization: closed by default, permissions from roles
 
-- Status: Accepted; updated by [0036](0036-custom-roles-per-tenant.md)
+- Status: Accepted; updated by [0036](0036-custom-roles-per-tenant.md), [0038](0038-platform-operator.md)
 - Date: 2026-10-20
 
 ## Context

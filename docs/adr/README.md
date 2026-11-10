@@ -69,3 +69,4 @@ Each option and why it was not chosen.
 | [0035](0035-production-compose-guard.md) | The production Compose file works only in the deployment folder | Accepted |
 | [0036](0036-custom-roles-per-tenant.md) | Custom roles per tenant, built-in roles in code | Accepted |
 | [0037](0037-tenant-administration-of-people.md) | Tenant administrators manage people and companies from the interface | Accepted |
+| [0038](0038-platform-operator.md) | A platform operator configures customers from the browser, through narrow functions | Accepted |

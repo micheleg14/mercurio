@@ -50,6 +50,9 @@ Named after Mercury, the Roman god of commerce.
 - **People and roles**: each customer's administrator adds colleagues, hands over their one-time
   activation code and chooses what they reach: a built-in role or one the customer defines,
   permission by permission, on all its companies or some; further companies of the group too.
+- **Platform operator**: creates customers from the browser (first company, modules, first
+  administrator), switches their modules on and off, suspends and reactivates them, without ever
+  seeing their working data; every action in the customer's own audit log.
 - **Security**: sign-in with TOTP two-factor authentication, roles, audit log.
 - **Demo**: two fictitious tenants with twelve months of history, written through the same rules as
   the API, showing every feature at least once.
@@ -181,15 +184,22 @@ images, runs the migrations, restarts the app and waits for the health check. An
 can be redeployed by hand from the **Deploy** workflow, which is also the rollback.
 
 The API connects as the `mercurio_app` database role, whose password (`POSTGRES_APP_PASSWORD`)
-lives in `.env.production` next to the owner's. A tenant, with its first company, modules and
-administrator, is created with a terminal command, which runs as the owner and is never exposed over
-HTTP. `compose.sh` runs it from the deployment folder, with its settings and the version of the app
-that is running:
+lives in `.env.production` next to the owner's. Terminal commands run as the owner and are never
+exposed over HTTP. One of them is needed once, at installation: it makes the first **platform
+operator**, and prints their activation code. `compose.sh` runs it from the deployment folder, with
+its settings and the version of the app that is running:
 
 ```bash
-./compose.sh run --rm cli create-tenant \
-  --name "…" --slug … --modules all --company-name "…" --vat … --admin-email … --admin-name "…"
+./compose.sh run --rm cli grant-operator --email … --name "…"
 ```
+
+From then on customers are created in the browser, in the platform area (`/mercurio/platform`): the
+operator enters the customer's name, its first company, the modules and the first administrator, and
+hands over the administrator's activation code. The operator also switches modules on and off,
+adds an administrator, suspends and reactivates a customer; they never see its parties, stock,
+orders or invoices ([ADR 0038](docs/adr/0038-platform-operator.md)). The same steps exist as
+commands (`create-tenant`, `set-modules`, …) for scripts and emergencies; `revoke-operator` and
+`list-operators` manage operators.
 
 `docker-compose.prod.yml` refuses to start without `MERCURIO_DEPLOYMENT`, which only
 `.env.production` sets: a command typed in a checkout, where `.env` holds the development database
@@ -199,7 +209,7 @@ From there the customer goes on in the browser: its administrator activates thei
 the invoice data of the company, adds the other companies of the group, defines roles and adds
 colleagues, each with an activation code to hand over ([ADR 0037](docs/adr/0037-tenant-administration-of-people.md)).
 
-`create-tenant` and `add-user` print a one-time activation code for each new person. The person opens
+Every new person receives a one-time activation code, from the browser or from the terminal. The person opens
 `<address>/mercurio/activate#<code>`, chooses a password, sets up an authenticator app and saves the
 recovery codes. There is no email reset: to recover an account, the operator issues a new code
 (`issue-code --email …`), which resets password and two-factor setup when used; `revoke-sessions`
@@ -210,25 +220,26 @@ and the database is not exposed. Details in [ADR 0007](docs/adr/0007-continuous-
 
 ## Roadmap
 
-| Phase | Content                                                          | Status |
-| ----- | ---------------------------------------------------------------- | ------ |
-| 0     | Walking skeleton: monorepo, CI, Docker, status page              | ✅     |
-| 1a    | Tenancy: tenants, companies, people, modules, Row-Level Security | ✅     |
-| 1b    | Authentication: sign-in, TOTP two-factor, roles, audit log       | ✅     |
-| 2     | Registry: customers, suppliers, items                            | ✅     |
-| 2c    | Responsive interface: sidebar, layouts for tablet and phone      | ✅     |
-| 3     | Warehouse: movements, stock levels, goods receipt                | ✅     |
-| 4     | Orders: purchase and sales orders, reservations, concurrency     | ✅     |
-| 5     | Invoicing: invoices, credit notes, due dates, PDF                | ✅     |
-| 6     | Polish: overview charts, FatturaPA files, demo history, docs     | ✅     |
-| 7     | People, custom roles and companies managed by each customer      | ✅     |
+| Phase | Content                                                            | Status |
+| ----- | ------------------------------------------------------------------ | ------ |
+| 0     | Walking skeleton: monorepo, CI, Docker, status page                | ✅     |
+| 1a    | Tenancy: tenants, companies, people, modules, Row-Level Security   | ✅     |
+| 1b    | Authentication: sign-in, TOTP two-factor, roles, audit log         | ✅     |
+| 2     | Registry: customers, suppliers, items                              | ✅     |
+| 2c    | Responsive interface: sidebar, layouts for tablet and phone        | ✅     |
+| 3     | Warehouse: movements, stock levels, goods receipt                  | ✅     |
+| 4     | Orders: purchase and sales orders, reservations, concurrency       | ✅     |
+| 5     | Invoicing: invoices, credit notes, due dates, PDF                  | ✅     |
+| 6     | Polish: overview charts, FatturaPA files, demo history, docs       | ✅     |
+| 7     | People, custom roles and companies managed by each customer        | ✅     |
+| 8a    | Platform operator: customers created and governed from the browser | ✅     |
 
 ## Possible next steps
 
 - Transmission to the exchange system through an accredited intermediary, keeping the files sent.
 - An outbox for events, if a module ever moves to a service of its own (ADR 0027).
-- A platform operator area: creating customers, enabling their modules and recovering accounts from
-  the browser (today: terminal commands); passkeys.
+- More operators managed from the browser, and recovering an active account from it (today:
+  `grant-operator` and `issue-code` in the terminal); passkeys.
 - An installable app (PWA), if working offline ever makes sense for a part of it.
 
 ## Out of scope, by choice
@@ -237,7 +248,7 @@ and the database is not exposed. Details in [ADR 0007](docs/adr/0007-continuous-
   euro. Foreign customers and suppliers are supported; amounts in another currency are converted by
   hand ([ADR 0017](docs/adr/0017-italian-rules-euro-only.md)).
 - Self-service sign-up, subscriptions and billing, one subdomain per customer: tenants are created
-  with terminal commands ([ADR 0010](docs/adr/0010-identity-and-memberships.md)).
+  by the platform operator ([ADR 0038](docs/adr/0038-platform-operator.md)).
 - General ledger, production planning, purchase invoices.
 - Stock valuation (average cost, FIFO), lots, serial numbers, locations and barcodes.
 - Quotes, price lists per customer, cascading discounts, reserving goods still incoming, automatic
