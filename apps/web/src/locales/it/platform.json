@@ -172,8 +172,8 @@
     "actions": "Azioni",
     "you": "Tu",
     "never": "Mai",
-    "grantedBy": "il {{date}} da {{name}}",
-    "grantedTerminal": "il {{date}} da terminale",
+    "grantedBy": "Concesso il {{date}} da {{name}}",
+    "grantedTerminal": "Concesso il {{date}} da terminale",
     "revoke": "Revoca",
     "terminalHint": "Chi ha già attivato l'account e ha perso l'app di autenticazione si recupera da terminale (issue-code): il recupero di un operatore non passa dal browser.",
     "revoked_one": "{{count}} concessione revocata",
@@ -191,6 +191,7 @@
     "revokeDescription": "Dalla sua prossima richiesta non entra più nell'area della piattaforma. La concessione resta nello storico.",
     "closeSessions": "Chiudi anche le sessioni della persona",
     "closeSessionsHint": "Per un account che credi compromesso. Altrimenti la persona continua a lavorare per i suoi clienti.",
-    "revokedNotice": "{{name}} non è più un operatore."
+    "revokedNotice": "{{name}} non è più un operatore.",
+    "neverSignedIn": "Non è ancora entrato"
   }
 }

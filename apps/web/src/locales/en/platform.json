@@ -172,8 +172,8 @@
     "actions": "Actions",
     "you": "You",
     "never": "Never",
-    "grantedBy": "on {{date}} by {{name}}",
-    "grantedTerminal": "on {{date}} from the terminal",
+    "grantedBy": "Granted on {{date}} by {{name}}",
+    "grantedTerminal": "Granted on {{date}} from the terminal",
     "revoke": "Revoke",
     "terminalHint": "An operator who activated their account and lost the authenticator app is recovered from the terminal (issue-code): an operator is never recovered from the browser.",
     "revoked_one": "{{count}} revoked grant",
@@ -191,6 +191,7 @@
     "revokeDescription": "From their next request they no longer reach the platform area. The grant stays in the history.",
     "closeSessions": "Close the person's sessions too",
     "closeSessionsHint": "For an account you believe compromised. Otherwise the person keeps working for their customers.",
-    "revokedNotice": "{{name}} is no longer an operator."
+    "revokedNotice": "{{name}} is no longer an operator.",
+    "neverSignedIn": "Has not signed in yet"
   }
 }
