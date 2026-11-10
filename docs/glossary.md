@@ -25,7 +25,8 @@ term; the interface uses the term of the selected language.
 | account recovery                | recupero dell'account        | A new activation code issued by the operator: password and two-factor setup start over              |
 | permission                      | permesso                     | What a role may do, as `area:action` (e.g. `audit:read`)                                            |
 | audit log                       | registro attività            | Append-only record of who did what, and of security events                                          |
-| platform operator               | operatore della piattaforma  | Who runs the installation and creates tenants, from the terminal                                    |
+| platform operator               | operatore della piattaforma  | Who creates and governs tenants from the browser, belonging to none of them (ADR 0038)              |
+| suspension                      | sospensione                  | A tenant whose people cannot work until the operator reactivates it; nothing is deleted             |
 | VAT number                      | partita IVA                  | Tax identifier of a company; Italian numbers have 11 digits and a check digit                       |
 | tax code                        | codice fiscale               | Italian tax identifier: 11 digits for companies, 16 characters for individuals                      |
 
