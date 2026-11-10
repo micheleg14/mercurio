@@ -5,6 +5,40 @@ All notable changes to this project are documented here. The format follows
 [Semantic Versioning](https://semver.org/). Each phase of the [roadmap](README.md#roadmap) ends with
 a release.
 
+## [1.3.0] - 2026-11-10
+
+Phase 8b: a customer is configured and managed entirely from the browser.
+
+### Added
+
+- **Account recovery** in the platform area: the operator looks a person up by exact email, sees
+  the customers they work for and their role, writes a reason and receives a recovery code, shown
+  once and valid 24 hours. Never for an operator, for oneself, or for an account not activated.
+- **Operators** page: the operators with their state and last sign-in, the revoked grants folded
+  away; add an operator (a person who works for customers after confirmation), revoke another one
+  with a reason and, if needed, their sessions closed, issue a code to one not activated yet.
+- **Further companies** added by the operator from a customer's page, with the rules of the
+  customer's administrator.
+- My account shows the reason the operator wrote for a recovery or a revocation.
+- Activity knows `MEMBER_RECOVERY_ISSUED`, the recovery of one of the customer's people.
+
+### Changed
+
+- The window with a one-time code has a wording for recovery codes.
+- Granting and revoking operators, done from the terminal so far, are done from the browser; the
+  commands stay for the first operator and for emergencies.
+
+### Security
+
+- Recovery, grant and revocation of an operator ask for a fresh code of the operator's
+  authenticator, checked by the API in the same transaction as the action. A wrong code answers
+  403 and counts towards the lock, like a failed sign-in.
+- A recovery closes the person's sessions at once, and is recorded in their security events and in
+  the activity log of every customer they work for, without the reason.
+- Two operators revoking each other at the same moment cannot both succeed; nobody revokes
+  themselves.
+- The person lookup is a POST, so emails stay out of the server logs.
+
 ## [1.2.0] - 2026-11-10
 
 Phase 8a: a new customer is created and governed from the browser.
@@ -422,6 +456,8 @@ features yet.
   hand.
 - Documentation: architecture, conventions, glossary, first architecture decision records.
 
+[1.3.0]: https://github.com/MicheleG14/mercurio/releases/tag/v1.3.0
+[1.2.0]: https://github.com/MicheleG14/mercurio/releases/tag/v1.2.0
 [1.1.2]: https://github.com/MicheleG14/mercurio/releases/tag/v1.1.2
 [1.1.1]: https://github.com/MicheleG14/mercurio/releases/tag/v1.1.1
 [1.1.0]: https://github.com/MicheleG14/mercurio/releases/tag/v1.1.0
