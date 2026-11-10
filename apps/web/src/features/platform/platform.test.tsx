@@ -218,13 +218,16 @@ describe('platform area', () => {
 
   it('asks before switching off a module, and saves the modules with the version read', async () => {
     const user = userEvent.setup();
+    let current = tenant();
     const api = mockApi({
       ...operator(),
-      'GET /platform/tenants/t-verdi': () => json(200, tenant()),
+      'GET /platform/tenants/t-verdi': () => json(200, current),
       'GET /platform/tenants/t-verdi/events': () =>
         json(200, { items: [], total: 0, page: 1, pageSize: 10 }),
-      'PUT /platform/tenants/t-verdi/modules': () =>
-        json(200, tenant({ version: 4, modules: ['registry', 'warehouse'] })),
+      'PUT /platform/tenants/t-verdi/modules': () => {
+        current = tenant({ version: 4, modules: ['registry', 'warehouse'] });
+        return json(200, current);
+      },
     });
     renderApp('/platform/tenants/t-verdi');
 
@@ -239,6 +242,7 @@ describe('platform area', () => {
     await waitFor(() => expect(api.count('PUT /platform/tenants/t-verdi/modules')).toBe(1));
     const body = await api.calls.find((c) => c.method === 'PUT')!.request.json();
     expect(body).toEqual({ version: 3, modules: ['registry', 'warehouse'] });
+    expect(await screen.findByText('Moduli salvati.')).toBeInTheDocument();
   });
 
   it('suspends only with a reason, after confirming', async () => {
