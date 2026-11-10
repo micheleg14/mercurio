@@ -75,7 +75,7 @@ export function TenantPage() {
       )}
       <div className="grid gap-6 lg:grid-cols-2">
         <DataCard tenant={data} />
-        <ModulesCard key={`modules-${data.version}`} tenant={data} />
+        <ModulesCard tenant={data} />
         <AdminsCard tenant={data} />
         <StatusCard key={`status-${data.version}`} tenant={data} />
         <CompaniesCard tenant={data} />
@@ -162,6 +162,13 @@ function ModulesCard({ tenant }: { tenant: Tenant }) {
   const save = useSetModules(tenant.id);
   const [chosen, setChosen] = useState<string[]>(tenant.modules);
   const [confirming, setConfirming] = useState<string | null>(null);
+  // A new version (saved here or by someone else) brings the switches back to what is stored. The
+  // card stays mounted, so the "saved" message survives its own save.
+  const [seenVersion, setSeenVersion] = useState(tenant.version);
+  if (seenVersion !== tenant.version) {
+    setSeenVersion(tenant.version);
+    setChosen(tenant.modules);
+  }
   const changed =
     chosen.length !== tenant.modules.length || chosen.some((m) => !tenant.modules.includes(m));
   const name = (key: string) => t(`modules.${key as 'registry'}.name`);
