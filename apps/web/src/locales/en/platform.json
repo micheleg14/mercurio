@@ -8,7 +8,7 @@
   "modules": {
     "registry": {
       "name": "Registry",
-      "description": "Parties, items and companies. Always on: the base of the other modules."
+      "description": "Parties, items and companies: the base of the other modules."
     },
     "warehouse": {
       "name": "Warehouse",
