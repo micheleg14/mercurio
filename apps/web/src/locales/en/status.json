@@ -1,6 +1,6 @@
 {
   "title": "System status",
-  "subtitle": "Mercurio is under construction. This page checks that the application and its database are reachable, and that each customer's data stays separate.",
+  "subtitle": "This page checks that the application and its database are reachable, and that each customer's data stays separate.",
   "overall": {
     "ok": "Operational",
     "degraded": "Degraded service",
@@ -10,7 +10,7 @@
   "checks": {
     "api": "API",
     "database": "Database",
-    "tenantIsolation": "Tenant isolation",
+    "tenantIsolation": "Customer isolation",
     "version": "Version",
     "uptime": "Up for",
     "checkedAt": "Last check"
@@ -24,6 +24,5 @@
     "down": "Not enforced"
   },
   "unreachableHint": "The server is not responding. Try again in a moment.",
-  "refresh": "Refresh",
-  "next": "Next step: sign-in with two-step verification."
+  "refresh": "Refresh"
 }

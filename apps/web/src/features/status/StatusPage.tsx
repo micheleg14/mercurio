@@ -102,8 +102,6 @@ export function StatusPage() {
           )}
         </CardContent>
       </Card>
-
-      <p className="text-muted-foreground text-sm">{t('next')}</p>
     </div>
   );
 }
