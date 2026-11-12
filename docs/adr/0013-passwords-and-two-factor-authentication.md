@@ -1,6 +1,6 @@
 # 0013. Passwords, mandatory two-factor authentication and account recovery
 
-- Status: Accepted
+- Status: Accepted; updated by [0039](0039-account-recovery-and-step-up.md)
 - Date: 2026-10-20
 
 ## Context

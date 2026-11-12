@@ -91,8 +91,8 @@ export class CompanyGuard implements CanActivate {
 
 /**
  * Enforces @RequiresPlatformOperator(): the person holds an open operator grant, read from the
- * database on every request (a revocation from the terminal works at the next request). The
- * database functions the platform routes call check it again by themselves.
+ * database on every request (a revocation, from the browser or the terminal, works at the next
+ * request). The database functions the platform routes call check it again by themselves.
  */
 @Injectable()
 export class PlatformOperatorGuard implements CanActivate {

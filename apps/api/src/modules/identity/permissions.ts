@@ -4,10 +4,9 @@ import type { MembershipRole } from '../../generated/prisma/client.js';
 /**
  * What a person may do, as `area:action`. Roles are bundles of permissions; the code checks
  * permissions, never roles, so a role can change without touching the routes
- * (docs/adr/0014). The matrix is provisional for the areas not built yet: the phase that builds
- * an area refines its actions, as phase 2 did for the registry (parties and items apart), phase 3 for the
- * warehouse, phase 4 for orders (moving goods apart) and phase 5 for invoicing (payments and the
- * company's header data apart).
+ * (docs/adr/0014). Each area got its actions when it was built: the registry (parties and items
+ * apart), the warehouse, orders (moving goods apart) and invoicing (payments and the company's
+ * header data apart). Tenants may bundle them into roles of their own (docs/adr/0036).
  */
 export const PERMISSIONS = [
   'parties:read',

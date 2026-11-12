@@ -32,8 +32,16 @@ especially about:
 - The API runs as a database role that cannot bypass Row-Level Security, with write privileges listed
   per table and column (a test lists them); in production it refuses to start with a role that could
   bypass it.
-- Tenants and people are created only with terminal commands that use the owner role, never over
-  HTTP; one-time activation codes are stored as hashes and unreadable by the API role.
+- Tenants are created by the platform operator through `SECURITY DEFINER` database functions that
+  check the operator first ([ADR 0038](docs/adr/0038-platform-operator.md)); people are added by each
+  tenant's administrator, whose writes Row-Level Security keeps inside their tenant, with identities
+  and codes going through narrow functions ([ADR 0037](docs/adr/0037-tenant-administration-of-people.md)).
+  The API role gains no privilege across tenants. One-time activation codes are stored as hashes and
+  unreadable by the API role; an administrator never gets one for an account already activated.
+- **Account recovery** ([ADR 0039](docs/adr/0039-account-recovery-and-step-up.md)): only the
+  platform operator issues it, never for another operator, after a fresh code of their own
+  authenticator; the person's sessions close at once, and the person and every tenant they work
+  for are told.
 - **Sign-in** ([ADR 0012](docs/adr/0012-sessions-and-tokens.md),
   [0013](docs/adr/0013-passwords-and-two-factor-authentication.md)): argon2id passwords, mandatory TOTP
   two-factor authentication with encrypted secrets and hashed one-time recovery codes, the same answer
@@ -59,8 +67,10 @@ especially about:
 - Row-Level Security protects against mistakes in the code, not against a compromised API process:
   the API sets its own database context, so code running inside it could set any tenant or person.
   The defences against that are elsewhere (unprivileged containers, secrets outside the repository).
-- There is no password reset by email: accounts are recovered by the platform operator with a new
-  activation code.
+- There is no password reset by email: accounts are recovered by the platform operator with a
+  recovery code handed over by hand. A compromised operator account remains the highest risk; it is
+  limited by the fresh code asked for recovery and operator changes, and by the traces each recovery
+  leaves, not by a second operator's approval.
 - Someone who knows an email address can keep that account locked by guessing passwords; the per-IP
   rate limit and the short lock reduce the impact.
 - Security events keep IP addresses and browsers with no expiry yet; a retention period will come
