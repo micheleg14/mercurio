@@ -8,9 +8,11 @@
 A vertical ERP for warehouse and invoicing, built as a modular monolith with NestJS and React.
 Named after Mercury, the Roman god of commerce.
 
-> **Status: 1.0, the planned scope is complete.** People sign in with mandatory two-factor
+> **Status: 1.3, the planned scope is complete.** People sign in with mandatory two-factor
 > authentication and work from a desktop, a tablet or a phone on the registry, the warehouse, orders
-> and invoicing; the overview charts the year. Every phase shipped a complete vertical slice
+> and invoicing; the overview charts the year. Each customer's administrator manages people and
+> roles, and a platform operator creates and configures customers, all from the browser. Every
+> phase shipped a complete vertical slice
 > (database → API → UI) to production. A [tour](docs/tour.md) follows one order from the customer
 > to the payment.
 
@@ -154,7 +156,9 @@ pnpm dev:web                     # web app on http://127.0.0.1:5173
 
 The demo people (for example `anna.rossi@example.com`, see `apps/api/src/cli/seed-demo.ts`) sign in
 with the password `Demo-password-2026` and the authenticator secret `JBSWY3DPEHPK3PXPJBSWY3DPEHPK3PXP`:
-add it to any authenticator app to get the codes. These credentials exist only outside production.
+add it to any authenticator app to get the codes. `operatore@example.com`, with the same
+credentials, is the platform operator and opens the platform area. These credentials exist only
+outside production.
 
 The history ends today (`pnpm cli seed-demo --today 2026-11-05` for another day); its dates do not
 move, so after some months the demo looks old: `pnpm cli reset-demo` writes it again up to today.

@@ -4,7 +4,7 @@ Mercurio is a modular monolith ([ADR 0001](adr/0001-modular-monolith.md)): one N
 with one module per business area, a React single-page app served by the same process
 ([ADR 0004](adr/0004-api-serves-web-app.md)), and one PostgreSQL database.
 
-This document describes what exists today and marks what is planned. Decisions behind each choice
+This document describes what exists today. Decisions behind each choice
 are in [`adr/`](adr/); coding rules are in [conventions.md](conventions.md).
 
 ## Runtime
@@ -37,7 +37,7 @@ flowchart LR
   on `127.0.0.1`, runs as a non-root user with a read-only filesystem and no Linux capabilities.
 - **migrate** applies pending Prisma migrations as the owner role, enables the login of the API's
   role (`mercurio_app`) and exits; the app starts only if it succeeds.
-- **cli** runs terminal commands (create tenants and users, demo seed) as the owner role. Compose
+- **cli** runs terminal commands (first operator, emergencies, demo seed) as the owner role. Compose
   never starts it with `up`: it runs only with `./compose.sh run --rm cli <command>` in the
   deployment folder, which passes `.env.production` and the version of the running app. Without
   `MERCURIO_DEPLOYMENT` (set only there) the production file refuses to start
@@ -160,8 +160,12 @@ sequenceDiagram
     T->>P: COMMIT (the context ends with the transaction)
 ```
 
-Tenants and people are created only by terminal commands (`create-tenant`, `add-user`, …), which
-connect as the owner role and are never reachable over HTTP.
+Tenants are created from the browser by the platform operator, through `SECURITY DEFINER` functions
+that check the operator first ([ADR 0038](adr/0038-platform-operator.md)); people are added by each
+tenant's administrator, within the tenant as Row-Level Security allows, with identities and codes
+going through narrow functions ([ADR 0037](adr/0037-tenant-administration-of-people.md)).
+Terminal commands (`create-tenant`, `add-user`, …) do the same as the owner role, for the first
+operator and for emergencies; they are never reachable over HTTP.
 
 ## Signing in
 
@@ -238,7 +242,7 @@ flowchart TB
         auth[auth<br/>sign-in · sessions · guards]
         audit[audit<br/>security and tenant events]
         members[members<br/>people and roles of a tenant]
-        platform[platform<br/>the operator's customers]
+        platform[platform<br/>customers · recovery · operators]
         registry[registry<br/>parties · items · catalogs]
         warehouse[warehouse<br/>warehouses · documents · stock]
         orders[orders<br/>purchase and sales orders · fulfilments]
