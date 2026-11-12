@@ -61,7 +61,7 @@ describe('StatusPage', () => {
     renderPage();
 
     await waitFor(() => expect(screen.getByRole('status')).toHaveTextContent('Servizio degradato'));
-    expect(screen.getByText('Isolamento dei tenant')).toBeInTheDocument();
+    expect(screen.getByText('Isolamento dei clienti')).toBeInTheDocument();
     expect(screen.getByText('Non garantito')).toBeInTheDocument();
   });
 
@@ -80,7 +80,7 @@ describe('StatusPage', () => {
 
     await waitFor(() => expect(screen.getByRole('status')).toHaveTextContent('Operational'));
     expect(screen.getByRole('heading', { name: 'System status' })).toBeInTheDocument();
-    expect(screen.getByText('Tenant isolation')).toBeInTheDocument();
+    expect(screen.getByText('Customer isolation')).toBeInTheDocument();
     expect(screen.getByText('Enforced')).toBeInTheDocument();
   });
 });
