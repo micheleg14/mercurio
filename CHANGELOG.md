@@ -5,6 +5,15 @@ All notable changes to this project are documented here. The format follows
 [Semantic Versioning](https://semver.org/). Each phase of the [roadmap](README.md#roadmap) ends with
 a release.
 
+## [1.3.1] - 2026-11-12
+
+### Fixed
+
+- The status page no longer says Mercurio is under construction, nor announces two-factor sign-in
+  as the next step; it speaks of customers, not tenants.
+- README, security policy and architecture describe how customers, people and recoveries are
+  handled since 1.3: from the browser, with the terminal for the first operator and emergencies.
+
 ## [1.3.0] - 2026-11-10
 
 Phase 8b: a customer is configured and managed entirely from the browser.
@@ -456,6 +465,7 @@ features yet.
   hand.
 - Documentation: architecture, conventions, glossary, first architecture decision records.
 
+[1.3.1]: https://github.com/MicheleG14/mercurio/releases/tag/v1.3.1
 [1.3.0]: https://github.com/MicheleG14/mercurio/releases/tag/v1.3.0
 [1.2.0]: https://github.com/MicheleG14/mercurio/releases/tag/v1.2.0
 [1.1.2]: https://github.com/MicheleG14/mercurio/releases/tag/v1.1.2
