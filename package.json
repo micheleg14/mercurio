@@ -30,10 +30,10 @@
   "devDependencies": {
     "@commitlint/cli": "^21.2.4",
     "@commitlint/config-conventional": "^21.2.4",
-    "dependency-cruiser": "^18.7.2",
+    "dependency-cruiser": "^18.8.0",
     "husky": "^9.1.7",
-    "lint-staged": "^17.6.0",
-    "prettier": "^3.9.10"
+    "lint-staged": "^17.6.1",
+    "prettier": "^3.10.1"
   },
   "lint-staged": {
     "*.{ts,tsx,js,mjs,json,css,md,yml,yaml,html}": "prettier --write",
